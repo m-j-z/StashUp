@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "925436838518",
+    "project_id": "stashup-edb5c",
+    "storage_bucket": "stashup-edb5c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:925436838518:android:4394e7a13c6ea4fd2b1557",
+        "android_client_info": {
+          "package_name": "com.group19.stashup"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "925436838518-kt76mcl6u9j1vgmkk19003iohsq631pt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDbI5Uoy1Tqfhn5-0pHbLSoVQfblYTrpWI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "925436838518-kt76mcl6u9j1vgmkk19003iohsq631pt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
