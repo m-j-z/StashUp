@@ -9,7 +9,34 @@
         android:id="@+id/nav_home"
         android:name="com.group19.stashup.ui.home.HomeFragment"
         android:label="@string/menu_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_nav_home_to_viewTransactionFragment"
+            app:destination="@id/viewTransactionFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_transactions"
+        android:name="com.group19.stashup.ui.transactions.TransactionFragment"
+        android:label="@string/menu_transactions"
+        tools:layout="@layout/fragment_transactions">
+        <action
+            android:id="@+id/action_nav_transactions_to_viewTransactionFragment"
+            app:destination="@id/viewTransactionFragment" />
+        <action
+            android:id="@+id/action_nav_transactions_to_createTransactionFragment"
+            app:destination="@id/createTransactionFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_expenditure"
+        android:name="com.group19.stashup.ui.expenditure.CountryExpenditureFragment"
+        android:label="@string/menu_expenditure"
+        tools:layout="@layout/fragment_country_expenditure">
+        <action
+            android:id="@+id/action_nav_expenditure_to_cityExpenditureFragment"
+            app:destination="@id/cityExpenditureFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_settings"
@@ -21,4 +48,32 @@
         android:name="com.group19.stashup.ui.profile.ProfileFragment"
         android:label="@string/menu_profile"
         tools:layout="@layout/fragment_profile" />
+
+    <fragment
+        android:id="@+id/viewTransactionFragment"
+        android:name="com.group19.stashup.ui.transactions.ViewTransactionFragment"
+        android:label="fragment_view_transaction"
+        tools:layout="@layout/fragment_view_transaction" />
+
+    <fragment
+        android:id="@+id/createTransactionFragment"
+        android:name="com.group19.stashup.ui.transactions.CreateTransactionFragment"
+        android:label="fragment_create_transaction"
+        tools:layout="@layout/fragment_create_transaction" />
+
+    <fragment
+        android:id="@+id/cityExpenditureFragment"
+        android:name="com.group19.stashup.ui.expenditure.CityExpenditureFragment"
+        android:label="fragment_city_expenditure"
+        tools:layout="@layout/fragment_city_expenditure">
+        <action
+            android:id="@+id/action_cityExpenditureFragment_to_viewExpenditureFragment"
+            app:destination="@id/viewExpenditureFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/viewExpenditureFragment"
+        android:name="com.group19.stashup.ui.expenditure.ViewExpenditureFragment"
+        android:label="fragment_view_expenditure"
+        tools:layout="@layout/fragment_view_expenditure" />
 </navigation>
