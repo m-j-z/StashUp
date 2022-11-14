@@ -1,27 +1,25 @@
-package com.group19.stashup.ui.home
+package com.group19.stashup.ui.expenditure
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.group19.stashup.databinding.FragmentHomeBinding
+import com.group19.stashup.databinding.FragmentViewExpenditureBinding
 
-class HomeFragment : Fragment() {
+class ViewExpenditureFragment : Fragment() {
 
-    private var _binding: FragmentHomeBinding? = null
+    private var _binding: FragmentViewExpenditureBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
-
+        _binding = FragmentViewExpenditureBinding.inflate(inflater, container, false)
         return binding.root
     }
 
