@@ -29,6 +29,8 @@
     <!-- Settings -->
     <string name="menu_settings">Settings</string>
     <string name="general_header">General</string>
+
+    <!-- Home/Transactions -->
     <string name="transactions_header">Transactions</string>
     <string name="total_balance_header">Total Balance</string>
     <string name="placeholder_balance">+$ 800.00 CAD</string>
@@ -43,7 +45,9 @@
     <string name="cost_hint">Cost</string>
     <string name="shared_expense_text">Is it a shared expense?</string>
     <string name="who_paid_text">Did you pay?</string>
-    <string name="discard">discard</string>
+    <string name="discard">Discard</string>
+
+    <!-- Expenditure -->
     <string name="menu_expenditure">Expenditure By City</string>
     <string name="city_name_text">City Name</string>
     <string name="total_cost_per_day">Total Cost Per Day</string>
