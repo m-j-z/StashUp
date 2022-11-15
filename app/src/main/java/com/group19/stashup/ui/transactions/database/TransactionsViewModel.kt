@@ -1,32 +1,66 @@
 package com.group19.stashup.ui.transactions.database
 
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
 
 class TransactionsViewModel : ViewModel() {
-    private var auth: FirebaseAuth = Firebase.auth
-    private var user: FirebaseUser = auth.currentUser!!
+    private var transactionsRepository = TransactionsRepository()
 
-    private var database: DatabaseReference = Firebase.database.reference.child("transaction")
-
-    var uid = user.uid
+    var uid = transactionsRepository.getUid()
     var transactionName: String = ""
     var cost: Double = 0.0
     var isShared: Boolean = false
     var creatorPaid: Boolean = false
+    var country: String = "Canada"
+    var city: String = "Burnaby"
+    var dateEpoch: Long = 0
 
+    init {
+        val now = LocalDateTime.now()
+        dateEpoch = now.toEpochSecond(OffsetDateTime.now().offset)
+    }
+
+    /**
+     * Adds an entry of [transaction] into realtime database.
+     */
     fun addEntry(transaction: Transaction) {
-        CoroutineScope(IO).launch {
-            val key = database.push().key
-            database.child(key.toString()).setValue(transaction)
-        }
+        transactionsRepository.addEntry(transaction)
+    }
+
+    /**
+     * Gets all entries of user uid.
+     */
+    fun getAllEntries() {
+        transactionsRepository.getAllEntries()
+    }
+
+    /**
+     * Deletes transaction with [transactionUid].
+     */
+    fun deleteEntry(transactionUid: String) {
+        transactionsRepository.deleteEntry(transactionUid)
+    }
+
+    /**
+     * Add [name] list with [transactionUid].
+     */
+    fun updatePeople(transactionUid: String, name: String) {
+        transactionsRepository.updatePeople(transactionUid, name)
+    }
+
+    /**
+     * Returns the status of data retrieval.
+     */
+    fun dataStatus(): MutableLiveData<Boolean> {
+        return transactionsRepository.dataStatus()
+    }
+
+    /**
+     * Returns the transaction list.
+     */
+    fun getTransactionList(): MutableLiveData<ArrayList<Transaction>> {
+        return transactionsRepository.getTransactionList()
     }
 }
