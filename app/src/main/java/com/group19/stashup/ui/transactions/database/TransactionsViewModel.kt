@@ -8,6 +8,7 @@ import java.time.OffsetDateTime
 class TransactionsViewModel : ViewModel() {
     private var transactionsRepository = TransactionsRepository()
 
+    var name = transactionsRepository.getName()
     var uid = transactionsRepository.getUid()
     var transactionName: String = ""
     var cost: Double = 0.0

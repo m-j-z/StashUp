@@ -202,7 +202,7 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
             city = transactionsViewModel.city
             country = transactionsViewModel.country
             dateEpoch = transactionsViewModel.dateEpoch
-            people = ArrayList()
+            people = arrayListOf()
         }
 
         transactionsViewModel.addEntry(transaction)

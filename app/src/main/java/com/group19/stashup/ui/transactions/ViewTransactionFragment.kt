@@ -26,6 +26,7 @@ class ViewTransactionFragment : Fragment(), View.OnClickListener {
 
     private lateinit var transaction: Transaction
     private lateinit var transactionsViewModel: TransactionsViewModel
+    private lateinit var currencyCode: String
     private lateinit var people: ArrayList<String>
 
     @Suppress("DEPRECATION")
@@ -47,18 +48,31 @@ class ViewTransactionFragment : Fragment(), View.OnClickListener {
      */
     private fun setViewsInLayout() {
         val preference = PreferenceManager.getDefaultSharedPreferences(requireActivity())
-        val currencyCode = preference.getString("currency", "CAD")
+        currencyCode = preference.getString("currency", "CAD").toString()
 
         binding.deleteBtn.setOnClickListener(this)
         binding.addPersonBtn.setOnClickListener(this)
 
         binding.transactionNameTv.text = transaction.transactionName
-        var cost = "-$ ${String.format("%.2f", transaction.cost)} $currencyCode"
+        val cost = "$ ${String.format("%.2f", transaction.cost)} $currencyCode"
+
+        var numOfPeople = transaction.people.size
+        if (numOfPeople == 0) {
+            numOfPeople = 1
+        }
+        var yourCost =
+            "-$ ${String.format("%.2f", transaction.cost / numOfPeople)} $currencyCode"
         if (transaction.ownerUid == transaction.payerUid) {
-            binding.totalCostTv.setTextColor(requireActivity().getColor(R.color.green))
-            cost = "+$ ${String.format("%.2f", transaction.cost)} $currencyCode"
+            binding.payReceiveTv.setTextColor(requireActivity().getColor(R.color.green))
+            yourCost = "+$ ${
+                String.format(
+                    "%.2f",
+                    transaction.cost - (transaction.cost / numOfPeople)
+                )
+            } $currencyCode"
         }
 
+        binding.payReceiveTv.text = yourCost
         binding.totalCostTv.text = cost
         if (!transaction.isShared) {
             binding.listViewCv.visibility = Button.INVISIBLE
@@ -107,6 +121,19 @@ class ViewTransactionFragment : Fragment(), View.OnClickListener {
                     transaction.transactionUid,
                     editText.text.toString()
                 )
+
+                var yourCost =
+                    "-$ ${String.format("%.2f", transaction.cost / transaction.people.size)} $currencyCode"
+                if (transaction.ownerUid == transaction.payerUid) {
+                    binding.payReceiveTv.setTextColor(requireActivity().getColor(R.color.green))
+                    yourCost = "+$ ${
+                        String.format(
+                            "%.2f",
+                            transaction.cost - (transaction.cost / transaction.people.size)
+                        )
+                    } $currencyCode"
+                }
+                binding.payReceiveTv.text = yourCost
             }
             setNegativeButton("CANCEL") { _: DialogInterface, _: Int -> }
         }

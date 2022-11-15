@@ -34,6 +34,7 @@ class TransactionsRepository {
             transaction.people.forEach {
                 database.child(key.toString()).setValue(it)
             }
+            updatePeople(key.toString(), user.displayName.toString())
         }
     }
 
@@ -118,5 +119,12 @@ class TransactionsRepository {
      */
     fun getTransactionList(): MutableLiveData<ArrayList<Transaction>> {
         return transactionList
+    }
+
+    /**
+     * Returns the name of the user.
+     */
+    fun getName(): String {
+        return user.displayName.toString()
     }
 }

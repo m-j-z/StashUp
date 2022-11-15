@@ -70,7 +70,6 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
                     android:text="@string/placeholder_balance"
-                    android:textColor="@color/red"
                     android:textSize="32sp" />
 
             </LinearLayout>
@@ -100,6 +99,8 @@
                     android:textSize="16sp" />
 
                 <TextView
+                    android:id="@+id/pay_receive_tv"
+                    android:textColor="@color/red"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
