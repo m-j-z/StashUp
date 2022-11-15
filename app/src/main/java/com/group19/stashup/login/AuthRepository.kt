@@ -7,6 +7,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.launch
 
 class AuthRepository(private val activity: Activity) {
     private var auth: FirebaseAuth = Firebase.auth
@@ -26,14 +29,16 @@ class AuthRepository(private val activity: Activity) {
      * Creates a new user with given [email] and [password].
      */
     fun register(email: String, password: String) {
-        auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
-            if (it.isSuccessful) {
-                user.postValue(auth.currentUser)
-            } else {
-                user.postValue(null)
-                Toast.makeText(
-                    activity, "${it.exception!!.message}", Toast.LENGTH_SHORT
-                ).show()
+        CoroutineScope(IO).launch {
+            auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
+                if (it.isSuccessful) {
+                    user.postValue(auth.currentUser)
+                } else {
+                    user.postValue(null)
+                    Toast.makeText(
+                        activity, "${it.exception!!.message}", Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
     }
@@ -42,14 +47,16 @@ class AuthRepository(private val activity: Activity) {
      * Login with given [email] and [password].
      */
     fun login(email: String, password: String) {
-        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener {
-            if (it.isSuccessful) {
-                user.postValue(auth.currentUser)
-            } else {
-                user.postValue(null)
-                Toast.makeText(
-                    activity, "${it.exception!!.message}", Toast.LENGTH_SHORT
-                ).show()
+        CoroutineScope(IO).launch {
+            auth.signInWithEmailAndPassword(email, password).addOnCompleteListener {
+                if (it.isSuccessful) {
+                    user.postValue(auth.currentUser)
+                } else {
+                    user.postValue(null)
+                    Toast.makeText(
+                        activity, "${it.exception!!.message}", Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
     }
@@ -58,21 +65,25 @@ class AuthRepository(private val activity: Activity) {
      * Logout of current user.
      */
     fun logout() {
-        auth.signOut()
+        CoroutineScope(IO).launch {
+            auth.signOut()
+        }
     }
 
     /**
      * Resets the password for [email].
      */
     fun resetPassword(email: String) {
-        auth.sendPasswordResetEmail(email).addOnCompleteListener {
-            if (it.isSuccessful) {
-                isReset.postValue(true)
-            } else {
-                isReset.postValue(false)
-                Toast.makeText(
-                    activity, "${it.exception!!.message}", Toast.LENGTH_SHORT
-                ).show()
+        CoroutineScope(IO).launch {
+            auth.sendPasswordResetEmail(email).addOnCompleteListener {
+                if (it.isSuccessful) {
+                    isReset.postValue(true)
+                } else {
+                    isReset.postValue(false)
+                    Toast.makeText(
+                        activity, "${it.exception!!.message}", Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
     }

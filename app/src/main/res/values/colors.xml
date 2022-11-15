@@ -12,4 +12,6 @@
     <color name="tangerine">#F08700</color>
     <color name="orange_web">#F49F0A</color>
     <color name="brick_red">#C83E4D</color>
+    <color name="red">#FF0000</color>
+    <color name="green">#00FF00</color>
 </resources>

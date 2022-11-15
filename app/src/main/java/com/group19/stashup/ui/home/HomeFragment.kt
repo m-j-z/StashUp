@@ -15,6 +15,13 @@ class HomeFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+    /**
+     * To switch to next fragment...
+     * 1. val navController = findNavController()
+     * 2. navController.navigate({action id})
+     * Action id is found in mobile_navigation.xml
+     */
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

@@ -51,4 +51,6 @@
     <string name="menu_expenditure">Expenditure By City</string>
     <string name="city_name_text">City Name</string>
     <string name="total_cost_per_day">Total Cost Per Day</string>
+    <string name="set_location_text">Set location</string>
+    <string name="delete_btn">Delete</string>
 </resources>
