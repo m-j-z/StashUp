@@ -33,6 +33,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
     private fun getPreferences() {
         currencyPreference = preferenceScreen.findPreference("currency")!!
         currencyPreference.onPreferenceClickListener = this
+        currencyPreference.summary = sharedPreferences.getString("currency", "CAD")
     }
 
     override fun onPreferenceClick(preference: Preference): Boolean {
