@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/more_options"
+        android:icon="@drawable/ic_triple_dot_24"
+        android:title="@string/more_options"
+        app:showAsAction="always">
+
+        <menu>
+            <group
+                android:id="@+id/options_menu"
+                android:checkableBehavior="single" />
+            <item
+                android:id="@+id/display_id"
+                android:title="@string/display_id"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/generate_qr"
+                android:title="@string/generate_qr"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/change_settings"
+                android:title="@string/change_settings"
+                app:showAsAction="ifRoom" />
+
+        </menu>
+
+    </item>
+
+</menu>

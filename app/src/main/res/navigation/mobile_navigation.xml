@@ -26,6 +26,12 @@
         <action
             android:id="@+id/action_nav_transactions_to_createTransactionFragment"
             app:destination="@id/createTransactionFragment" />
+        <action
+            android:id="@+id/action_nav_transactions_to_manualExistingFragment"
+            app:destination="@id/manualExistingFragment" />
+        <action
+            android:id="@+id/action_nav_transactions_to_qrExistingFragment"
+            app:destination="@id/qrExistingFragment" />
     </fragment>
 
     <fragment
@@ -76,4 +82,14 @@
         android:name="com.group19.stashup.ui.expenditure.ViewExpenditureFragment"
         android:label="@string/menu_expenditure"
         tools:layout="@layout/fragment_view_expenditure" />
+    <fragment
+        android:id="@+id/manualExistingFragment"
+        android:name="com.group19.stashup.ui.transactions.ManualExistingFragment"
+        android:label="@string/menu_transactions"
+        tools:layout="@layout/fragment_manual_existing" />
+    <fragment
+        android:id="@+id/qrExistingFragment"
+        android:name="com.group19.stashup.ui.transactions.QrExistingFragment"
+        android:label="@string/menu_transactions"
+        tools:layout="@layout/fragment_qr_existing" />
 </navigation>
