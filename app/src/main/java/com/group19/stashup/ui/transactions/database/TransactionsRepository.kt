@@ -156,7 +156,7 @@ class TransactionsRepository {
                     snapshot.child("people").children.forEach { ds ->
                         people.add(ds.value.toString())
                     }
-                    people.add(user.displayName.toString())
+                    updatePeople(transaction.transactionUid, user.displayName.toString())
                     transaction.people = people
                     val key = database.push().key.toString()
                     database.child(key).setValue(transaction)
