@@ -104,8 +104,33 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
                 onSetLocationClicked()
             }
             R.id.discard_btn -> onDiscardClicked()
-            R.id.save_btn -> onSaveClicked()
+            R.id.save_btn -> {
+                if (checkFields()) {
+                    onSaveClicked()
+                }
+            }
         }
+    }
+
+    private fun checkFields(): Boolean {
+        val transactionName = binding.nameEt.text.toString()
+        val cost = binding.costEt.text.toString().toDouble()
+
+        if (transactionName.isEmpty()) {
+            binding.nameEt.error = "Transaction name can not be empty."
+            binding.nameEt.requestFocus()
+        }
+
+        if (cost <= 0.0) {
+            binding.costEt.error = "Enter the cost of the transaction."
+            binding.costEt.requestFocus()
+        }
+
+        if (transactionName.isNotEmpty() && cost > 0.0) {
+            return true
+        }
+
+        return false
     }
 
     /**

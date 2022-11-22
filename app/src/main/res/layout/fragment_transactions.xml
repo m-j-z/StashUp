@@ -29,9 +29,54 @@
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/qr_existing_cv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="192dp"
+        android:layout_margin="8dp"
+        android:clickable="true"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:visibility="gone"
+        app:cardBackgroundColor="?attr/colorSecondaryVariant"
+        app:layout_constraintBottom_toTopOf="@id/manual_existing_cv"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="14dp"
+            android:text="@string/qr_existing_tv"
+            android:textColor="?attr/colorOnSecondary" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/manual_existing_cv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="192dp"
+        android:layout_margin="8dp"
+        android:clickable="true"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:visibility="gone"
+        app:cardBackgroundColor="?attr/colorSecondaryVariant"
+        app:layout_constraintBottom_toTopOf="@id/create_new_cv"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="14dp"
+            android:text="@string/manual_existing_tv"
+            android:textColor="?attr/colorOnSecondary" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/create_new_cv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:minWidth="192dp"
         android:layout_margin="8dp"
         android:clickable="true"
         android:foreground="?android:attr/selectableItemBackground"

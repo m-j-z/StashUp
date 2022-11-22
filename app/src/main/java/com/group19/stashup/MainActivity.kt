@@ -1,11 +1,18 @@
 package com.group19.stashup
 
-import android.content.Context
-import android.content.Intent
+import android.content.*
+import android.graphics.Bitmap
+import android.graphics.Color
 import android.os.Bundle
+import android.view.Gravity
 import android.view.MenuItem
+import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
@@ -18,6 +25,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.qrcode.QRCodeWriter
 import com.group19.stashup.databinding.ActivityMainBinding
 import com.group19.stashup.login.LoginActivity
 
@@ -50,13 +59,34 @@ class MainActivity : AppCompatActivity() {
          */
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_home, R.id.nav_transactions
+                R.id.nav_home, R.id.nav_transactions, R.id.nav_expenditure
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
         mainViewModel = ViewModelProvider(this)[MainViewModel::class.java]
+        mainViewModel.menuId.observe(this) {
+            if (it == null) return@observe
+
+            binding.appBarMain.toolbar.inflateMenu(it)
+        }
+
+        binding.appBarMain.toolbar.setOnMenuItemClickListener {
+            if (it == null) return@setOnMenuItemClickListener false
+
+            when (it.itemId) {
+                R.id.display_id -> {
+                    createDisplayIdDialog()
+                }
+                R.id.generate_qr -> {
+                    generateQrCode()
+                }
+                R.id.change_settings -> {}
+            }
+
+            return@setOnMenuItemClickListener true
+        }
 
         auth = Firebase.auth
 
@@ -71,6 +101,68 @@ class MainActivity : AppCompatActivity() {
             user = checkUser
             initializeLayoutViews()
         }
+    }
+
+    private fun generateQrCode() {
+        val qrWriter = QRCodeWriter()
+        val bitMatrix = qrWriter.encode(mainViewModel.transaction.transactionUid, BarcodeFormat.QR_CODE, 512, 512)
+
+        val w = bitMatrix.width
+        val h = bitMatrix.height
+        val pixels = IntArray(w * h)
+        for (y in 0 until h) {
+            for (x in 0 until w) {
+                pixels[y * w + x] = if (bitMatrix[x, y]) Color.BLACK else Color.WHITE
+            }
+        }
+
+        val bitmap = Bitmap.createBitmap(bitMatrix.width, bitMatrix.height, Bitmap.Config.ARGB_8888)
+        bitmap.setPixels(pixels, 0, bitMatrix.width, 0, 0, bitMatrix.width, bitMatrix.height)
+
+        val builder = AlertDialog.Builder(this)
+
+        val imageView = ImageView(this)
+        imageView.setImageBitmap(bitmap)
+
+        builder.apply {
+            setTitle("QR Code")
+            setView(imageView)
+            setNeutralButton("OK") { _: DialogInterface, _: Int -> }
+        }
+        builder.create().show()
+    }
+
+    /**
+     * Create dialog that displays the transaction ID.
+     */
+    private fun createDisplayIdDialog() {
+        val builder = AlertDialog.Builder(this)
+        // Create drawable.
+        val drawable = ContextCompat.getDrawable(this, R.drawable.ic_copy_24)!!
+        drawable.setBounds(0, 0, 64, 64)
+
+        // Create EditText.
+        val editText = EditText(this)
+        editText.apply {
+            setCompoundDrawables(null, null, drawable, null)
+            background = null
+            setText(mainViewModel.transaction.transactionUid)
+            focusable = EditText.NOT_FOCUSABLE
+            gravity = Gravity.CENTER_HORIZONTAL
+            setOnClickListener {
+                val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clip = ClipData.newPlainText("uid", mainViewModel.transaction.transactionUid)
+                clipboard.setPrimaryClip(clip)
+                Toast.makeText(this@MainActivity, "Copied to clipboard!", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        builder.apply {
+            setTitle("Transaction ID")
+            setView(editText)
+            setNeutralButton("OK") { _: DialogInterface, _: Int -> }
+        }
+        builder.create().show()
     }
 
     /**
