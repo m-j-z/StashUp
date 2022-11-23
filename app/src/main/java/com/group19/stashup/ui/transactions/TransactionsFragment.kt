@@ -6,10 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.widget.ListView
 import android.widget.ProgressBar
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
@@ -56,8 +56,6 @@ class TransactionFragment : Fragment(), View.OnClickListener {
     private lateinit var navController: NavController
 
     private lateinit var transactionsViewModel: TransactionsViewModel
-    private lateinit var status: MutableLiveData<Boolean>
-    private lateinit var transactions: MutableLiveData<ArrayList<Transaction>>
 
     /**
      * To switch to next fragment...
@@ -66,13 +64,16 @@ class TransactionFragment : Fragment(), View.OnClickListener {
      * Action id is found in mobile_navigation.xml
      */
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        transactionsViewModel = ViewModelProvider(this)[TransactionsViewModel::class.java]
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentTransactionsBinding.inflate(inflater, container, false)
         navController = findNavController()
-
-        transactionsViewModel = ViewModelProvider(this)[TransactionsViewModel::class.java]
 
         // Add on click listeners
         binding.createFab.setOnClickListener(this)
@@ -81,7 +82,6 @@ class TransactionFragment : Fragment(), View.OnClickListener {
         binding.qrExistingCv.setOnClickListener(this)
 
         // Create listview
-        binding.progressBar.visibility = ProgressBar.VISIBLE
         initializeListSearchView()
 
         return binding.root
@@ -92,24 +92,21 @@ class TransactionFragment : Fragment(), View.OnClickListener {
      * Add to list view.
      */
     private fun initializeListSearchView() {
-        transactionsViewModel.getAllEntries()
-
-        status = transactionsViewModel.dataStatus()
-        status.observe(viewLifecycleOwner) {
+        binding.listView.visibility = ListView.GONE
+        binding.progressBar.visibility = ProgressBar.VISIBLE
+        transactionsViewModel.listUpdated.observe(viewLifecycleOwner) {
             if (!it) return@observe
 
-            transactions = transactionsViewModel.getTransactionList()
-            transactions.observe(viewLifecycleOwner) { list ->
-                val transactionList: ArrayList<Transaction> = ArrayList()
-                list.forEach { item ->
-                    transactionList.add(item)
-                }
+            binding.progressBar.visibility = ProgressBar.GONE
+            binding.listView.visibility = ProgressBar.VISIBLE
 
-                val listAdapter = TransactionListViewAdapter(transactionList, requireActivity())
-                binding.listView.adapter = listAdapter
+            val transactionList: ArrayList<Transaction> = ArrayList()
+            transactionsViewModel.transactionList.forEach { item ->
+                transactionList.add(item)
             }
 
-            binding.progressBar.visibility = ProgressBar.GONE
+            val listAdapter = TransactionListViewAdapter(transactionList, requireActivity())
+            binding.listView.adapter = listAdapter
         }
 
         binding.listView.setOnItemClickListener { _, _, position, _ ->
@@ -119,11 +116,21 @@ class TransactionFragment : Fragment(), View.OnClickListener {
         }
     }
 
+    /**
+     * Remove binding onDestroyView.
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
+    /**
+     * Perform action on view clicked.
+     * On FAB clicked, expand menu.
+     * On create clicked, navigate to create fragment.
+     * On manual existing clicked, navigate to manual existing fragment.
+     * On qr existing clicked, navigate to qr existing fragment.
+     */
     override fun onClick(v: View?) {
         if (v == null) return
 
