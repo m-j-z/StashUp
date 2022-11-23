@@ -64,24 +64,35 @@ class TransactionFragment : Fragment(), View.OnClickListener {
      * Action id is found in mobile_navigation.xml
      */
 
+    /**
+     * Create TransactionViewModel on creation of fragment.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Create TransactionsViewModel.
         transactionsViewModel = ViewModelProvider(this)[TransactionsViewModel::class.java]
     }
 
+    /**
+     * Create binding and run necessary methods to setup view.
+     */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
+        // Set binding.
         _binding = FragmentTransactionsBinding.inflate(inflater, container, false)
+
+        // Set navController.
         navController = findNavController()
 
-        // Add on click listeners
+        // Add on click listeners.
         binding.createFab.setOnClickListener(this)
         binding.createNewCv.setOnClickListener(this)
         binding.manualExistingCv.setOnClickListener(this)
         binding.qrExistingCv.setOnClickListener(this)
 
-        // Create listview
+        // Create listview.
         initializeListSearchView()
 
         return binding.root
@@ -92,23 +103,31 @@ class TransactionFragment : Fragment(), View.OnClickListener {
      * Add to list view.
      */
     private fun initializeListSearchView() {
+        // Display progress bar.
         binding.listView.visibility = ListView.GONE
         binding.progressBar.visibility = ProgressBar.VISIBLE
+
+        // Set observer for transaction list.
         transactionsViewModel.listUpdated.observe(viewLifecycleOwner) {
             if (!it) return@observe
 
+            // If list is updated.
+            // Remove progress bar.
             binding.progressBar.visibility = ProgressBar.GONE
             binding.listView.visibility = ProgressBar.VISIBLE
 
+            // Add data to transaction list.
             val transactionList: ArrayList<Transaction> = ArrayList()
             transactionsViewModel.transactionList.forEach { item ->
                 transactionList.add(item)
             }
 
+            // Create new adapter and set list view adapter to display data.
             val listAdapter = TransactionListViewAdapter(transactionList, requireActivity())
             binding.listView.adapter = listAdapter
         }
 
+        // On click of list view item, start ViewTransactionFragment.
         binding.listView.setOnItemClickListener { _, _, position, _ ->
             val item = binding.listView.adapter.getItem(position)
             val bundle = bundleOf("transaction" to item)
@@ -135,15 +154,22 @@ class TransactionFragment : Fragment(), View.OnClickListener {
         if (v == null) return
 
         when (v.id) {
+            // Expand FAB menu on pressed.
             R.id.create_fab -> onFabPressed()
+
+            // Go to CreateTransactionFragment on create new transaction clicked.
             R.id.create_new_cv -> {
                 navController.navigate(R.id.action_nav_transactions_to_createTransactionFragment)
                 onFabPressed()
             }
+
+            // Go to ManualExistingFragment on get existing transaction clicked.
             R.id.manual_existing_cv -> {
                 navController.navigate(R.id.action_nav_transactions_to_manualExistingFragment)
                 onFabPressed()
             }
+
+            // Go to QrExistingFragment on scan qr clicked.
             R.id.qr_existing_cv -> {
                 navController.navigate(R.id.action_nav_transactions_to_qrExistingFragment)
                 onFabPressed()
@@ -156,6 +182,7 @@ class TransactionFragment : Fragment(), View.OnClickListener {
      */
     private fun onFabPressed() {
         if (fabExpanded) {
+            // Contract FAB menu.
             binding.createFab.startAnimation(rotateCloseAnimation)
             binding.createNewCv.visibility = MaterialCardView.GONE
             binding.createNewCv.startAnimation(toBottomAnimation)
@@ -164,6 +191,7 @@ class TransactionFragment : Fragment(), View.OnClickListener {
             binding.qrExistingCv.visibility = MaterialCardView.GONE
             binding.qrExistingCv.startAnimation(toBottomAnimation)
         } else {
+            // Expand FAB menu.
             binding.createFab.startAnimation(rotateOpenAnimation)
             binding.createNewCv.visibility = MaterialCardView.VISIBLE
             binding.createNewCv.startAnimation(fromBottomAnimation)

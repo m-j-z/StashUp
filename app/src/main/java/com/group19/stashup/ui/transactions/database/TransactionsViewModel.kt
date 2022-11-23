@@ -6,10 +6,14 @@ import java.time.LocalDateTime
 import java.time.OffsetDateTime
 
 class TransactionsViewModel(tUid: String = "") : ViewModel() {
+    // Create repository.
     private var transactionsRepository = TransactionsRepository(tUid)
+
+    // List of transactions.
     var transactionList = transactionsRepository.transactionList
     var listUpdated = transactionsRepository.listUpdated
 
+    // List of people.
     var peopleList = transactionsRepository.peopleList
     var peopleUpdated = transactionsRepository.peopleUpdated
 
@@ -23,6 +27,9 @@ class TransactionsViewModel(tUid: String = "") : ViewModel() {
     var city: String = "Burnaby"
     var dateEpoch: Long = 0
 
+    /**
+     * Get current datetime epoch in seconds.
+     */
     init {
         val now = LocalDateTime.now()
         dateEpoch = now.toEpochSecond(OffsetDateTime.now().offset)
@@ -57,7 +64,7 @@ class TransactionsViewModel(tUid: String = "") : ViewModel() {
     }
 
     /**
-     *
+     * Updates a transaction with [tUid] with [transaction].
      */
     fun updateEntry(tUid: String, transaction: Transaction) {
         transactionsRepository.updateEntry(tUid, transaction)

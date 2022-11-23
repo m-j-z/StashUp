@@ -55,6 +55,8 @@ class QrExistingFragment : Fragment() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Ask for permission to use camera.
         if (ContextCompat.checkSelfPermission(
                 requireActivity(), Manifest.permission.CAMERA
             ) == PermissionChecker.PERMISSION_GRANTED
@@ -71,7 +73,10 @@ class QrExistingFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
+        // Create binding.
         _binding = FragmentQrExistingBinding.inflate(inflater, container, false)
+
+        // Create TransactionViewModel.
         transactionsViewModel = ViewModelProvider(this)[TransactionsViewModel::class.java]
         return binding.root
     }

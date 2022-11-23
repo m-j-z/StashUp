@@ -32,6 +32,9 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
 
     private lateinit var transaction: Transaction
 
+    /**
+     * On creation of fragment, check if it is launched to edit a transaction instead.
+     */
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +43,9 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
         }
     }
 
+    /**
+     * Create binding and run necessary methods to setup view.
+     */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -55,6 +61,7 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
      * Initialize views in layouts.
      */
     private fun initializeViewsInLayout() {
+        // Set onClickListeners.
         binding.sharedCb.setOnCheckedChangeListener(this)
         binding.setLocationCv.setOnClickListener(this)
         binding.discardBtn.setOnClickListener(this)
@@ -65,14 +72,14 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
      * Load view models.
      */
     private fun loadViewModelData() {
-        // Create MainViewModel
+        // Create MainViewModel.
         countryCityViewModel = ViewModelProvider(this)[CountryCityViewModel::class.java]
         countryCityViewModel.loadData(requireActivity())
 
-        // Create TransactionViewModel
+        // Create TransactionViewModel.
         transactionsViewModel = ViewModelProvider(this)[TransactionsViewModel::class.java]
 
-        // Load data from passed Transaction
+        // Load data from passed Transaction.
         if (this::transaction.isInitialized) {
             transactionsViewModel.transactionName = transaction.transactionName
             transactionsViewModel.cost = transaction.cost
@@ -82,7 +89,7 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
             transactionsViewModel.creatorPaid = transaction.ownerUid == transaction.payerUid
         }
 
-        // Load data
+        // Load data.
         binding.nameEt.setText(transactionsViewModel.transactionName)
         binding.costEt.setText(transactionsViewModel.cost.toString())
         val text = "${transactionsViewModel.city}, ${transactionsViewModel.country}"
@@ -91,6 +98,9 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
         binding.payCb.isChecked = transactionsViewModel.creatorPaid
     }
 
+    /**
+     * Remove binding onDestroyView.
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
@@ -116,6 +126,7 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
         if (v == null) return
 
         when (v.id) {
+            // Create dialog that displays all countries and then cities.
             R.id.set_location_cv -> {
                 requireView().findViewById<LinearLayout>(R.id.linear_layout).visibility =
                     LinearLayout.GONE
@@ -123,7 +134,11 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
                     ProgressBar.VISIBLE
                 onSetLocationClicked()
             }
+
+            // Discard entry and return to previous fragment.
             R.id.discard_btn -> onDiscardClicked()
+
+            // Save transaction to database.
             R.id.save_btn -> {
                 if (checkFields()) {
                     onSaveClicked()
@@ -132,20 +147,26 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
         }
     }
 
+    /**
+     * Check validity of fields.
+     */
     private fun checkFields(): Boolean {
         val transactionName = binding.nameEt.text.toString()
         val cost = binding.costEt.text.toString().toDouble()
 
+        // Check if name is empty.
         if (transactionName.isEmpty()) {
             binding.nameEt.error = "Transaction name can not be empty."
             binding.nameEt.requestFocus()
         }
 
+        // Check if total cost is <= 0.
         if (cost <= 0.0) {
             binding.costEt.error = "Enter the cost of the transaction."
             binding.costEt.requestFocus()
         }
 
+        // Return true if conditions above are met.
         if (transactionName.isNotEmpty() && cost > 0.0) {
             return true
         }
@@ -158,21 +179,21 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
      */
     @SuppressLint("InflateParams")
     private fun onSetLocationClicked() {
-        // observe until data is loaded
+        // Observe until data is loaded.
         countryCityViewModel.isLoaded.observe(this) {
             if (!it) return@observe
 
-            // create builder
+            // Create builder.
             val builder = AlertDialog.Builder(requireActivity())
 
-            // inflate view
+            // Inflate view.
             val view = layoutInflater.inflate(R.layout.searchable_list, null)
 
-            // set query listener for search view
+            // Set query listener for search view.
             val searchView: SearchView = view.findViewById(R.id.search_view)
             searchView.setOnQueryTextListener(this)
 
-            // set data for list view
+            // Set data for list view.
             val listView: ListView = view.findViewById(R.id.list_view)
             val countryList = countryCityViewModel.countryList
             listAdapter = ArrayAdapter(
@@ -189,10 +210,10 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
                     transactionsViewModel.city = ""
                 }
 
-                // get item at position
+                // Get item at position.
                 val item = listView.adapter.getItem(position).toString()
 
-                // if country is empty, add to country
+                // If country is empty, add to country.
                 if (transactionsViewModel.country.isEmpty()) {
                     transactionsViewModel.country = item
                     val cityList = countryCityViewModel.getCities(item)
@@ -201,7 +222,7 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
                     )
                     currentList = cityList
                     listView.adapter = listAdapter
-                } else { // else add to city
+                } else { // else add to city.
                     transactionsViewModel.city = item
                     val text = "${transactionsViewModel.city}, ${transactionsViewModel.country}"
                     binding.setLocationTv.text = text
@@ -209,12 +230,12 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
                 }
             }
 
-            // set view, create dialog, show dialog
+            // Set view, create dialog, show dialog.
             builder.setView(view)
             dialog = builder.create()
             dialog.show()
 
-            // remove progress bar
+            // Remove progress bar.
             requireView().findViewById<ProgressBar>(R.id.progress_bar).visibility = ProgressBar.GONE
             requireView().findViewById<LinearLayout>(R.id.linear_layout).visibility =
                 LinearLayout.VISIBLE
@@ -233,11 +254,13 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
      * On save button clicked, save to database.
      */
     private fun onSaveClicked() {
+        // Determine if creator of transaction is payer.
         var payUid = ""
         if (binding.payCb.isChecked) {
             payUid = transactionsViewModel.uid
         }
 
+        // Create new transaction as specified by data fields in the view.
         val transaction = Transaction().apply {
             transactionName = binding.nameEt.text.toString().trim()
             cost = binding.costEt.text.toString().trim().toDouble()
@@ -250,16 +273,17 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
             people = arrayListOf()
         }
 
+        // If fragment was launched to edit a transaction, update transaction in database.
         if (this::transaction.isInitialized) {
             transaction.transactionUid = this.transaction.transactionUid
             transaction.people = this.transaction.people
             transaction.parentUid = this.transaction.parentUid
             transactionsViewModel.updateEntry(this.transaction.transactionUid, transaction)
-        } else {
+        } else { // Else add as new transaction.
             transactionsViewModel.addEntry(transaction)
         }
 
-        // On finish
+        // On finish, show status and return to previous fragment.
         Toast.makeText(requireActivity(), "Transaction saved.", Toast.LENGTH_SHORT).show()
         findNavController().popBackStack()
     }
