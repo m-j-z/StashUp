@@ -30,6 +30,16 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
     private lateinit var currentList: ArrayList<String>
     private lateinit var listAdapter: ArrayAdapter<String>
 
+    private lateinit var transaction: Transaction
+
+    @Suppress("DEPRECATION")
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (arguments != null) {
+            transaction = requireArguments().getParcelable("transaction")!!
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -61,6 +71,16 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
 
         // Create TransactionViewModel
         transactionsViewModel = ViewModelProvider(this)[TransactionsViewModel::class.java]
+
+        // Load data from passed Transaction
+        if (this::transaction.isInitialized) {
+            transactionsViewModel.transactionName = transaction.transactionName
+            transactionsViewModel.cost = transaction.cost
+            transactionsViewModel.city = transaction.city
+            transactionsViewModel.country = transaction.country
+            transactionsViewModel.isShared = transaction.isShared
+            transactionsViewModel.creatorPaid = transaction.ownerUid == transaction.payerUid
+        }
 
         // Load data
         binding.nameEt.setText(transactionsViewModel.transactionName)
