@@ -250,7 +250,14 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
             people = arrayListOf()
         }
 
-        transactionsViewModel.addEntry(transaction)
+        if (this::transaction.isInitialized) {
+            transaction.transactionUid = this.transaction.transactionUid
+            transaction.people = this.transaction.people
+            transaction.parentUid = this.transaction.parentUid
+            transactionsViewModel.updateEntry(this.transaction.transactionUid, transaction)
+        } else {
+            transactionsViewModel.addEntry(transaction)
+        }
 
         // On finish
         Toast.makeText(requireActivity(), "Transaction saved.", Toast.LENGTH_SHORT).show()
@@ -265,6 +272,7 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
 
         if (buttonView.id == R.id.shared_cb) {
             binding.payCb.isEnabled = isChecked
+            binding.payCb.isChecked = false
         }
     }
 

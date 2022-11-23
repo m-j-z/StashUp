@@ -36,17 +36,17 @@ class TransactionsViewModel(tUid: String = "") : ViewModel() {
     }
 
     /**
-     * Deletes transaction with [transactionUid].
+     * Deletes transaction with [tUid].
      */
-    fun deleteEntry(transactionUid: String) {
-        transactionsRepository.deleteEntry(transactionUid)
+    fun deleteEntry(tUid: String) {
+        transactionsRepository.deleteEntry(tUid)
     }
 
     /**
-     * Add [name] list with [transactionUid].
+     * Add [name] list with [tUid].
      */
-    fun updatePeople(transactionUid: String, people: ArrayList<String>) {
-        transactionsRepository.updatePeople(transactionUid, people)
+    fun updatePeople(tUid: String, people: ArrayList<String>) {
+        transactionsRepository.updatePeople(tUid, people)
     }
 
     /**
@@ -54,5 +54,12 @@ class TransactionsViewModel(tUid: String = "") : ViewModel() {
      */
     fun addTransactionByUid(tUid: String, context: Context) {
         transactionsRepository.addTransactionByUid(tUid, context)
+    }
+
+    /**
+     *
+     */
+    fun updateEntry(tUid: String, transaction: Transaction) {
+        transactionsRepository.updateEntry(tUid, transaction)
     }
 }

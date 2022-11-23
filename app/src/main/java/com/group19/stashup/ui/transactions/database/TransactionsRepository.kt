@@ -106,7 +106,6 @@ class TransactionsRepository(tUid: String) {
                 // signed in user.
                 // Update transaction in transactionList if it does.
                 override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-                    println("here")
                     if (snapshot.child("ownerUid").value.toString() != user.uid) return
 
                     val transaction = Transaction().apply {
@@ -327,6 +326,12 @@ class TransactionsRepository(tUid: String) {
 
             }
             database.child(tUid).addListenerForSingleValueEvent(valueEventListener)
+        }
+    }
+
+    fun updateEntry(tUid: String, transaction: Transaction) {
+        CoroutineScope(IO).launch {
+            database.child(tUid).setValue(transaction)
         }
     }
 
