@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -17,69 +18,213 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 
-class TransactionsRepository {
-    private var hasAllEntries: MutableLiveData<Boolean> = MutableLiveData(false)
-    private var transactionList: MutableLiveData<ArrayList<Transaction>> = MutableLiveData()
+class TransactionsRepository(tUid: String) {
+    var transactionList: ArrayList<Transaction> = ArrayList()
+    var listUpdated: MutableLiveData<Boolean> = MutableLiveData(false)
+
+    var peopleList: ArrayList<String> = ArrayList()
+    var peopleUpdated: MutableLiveData<Boolean> = MutableLiveData(false)
 
     private var auth: FirebaseAuth = Firebase.auth
     private var user: FirebaseUser = auth.currentUser!!
 
     private var database: DatabaseReference = Firebase.database.reference.child("transaction")
 
-    /**
-     * Adds an entry of [transaction] into realtime database.
-     */
-    fun addEntry(transaction: Transaction) {
-        CoroutineScope(IO).launch {
-            val key = database.push().key
-            database.child(key.toString()).setValue(transaction)
-            transaction.people.forEach {
-                database.child(key.toString()).setValue(it)
+    init {
+        setListenerForPeople(tUid)
+        addChildListener()
+    }
+
+    private fun setListenerForPeople(tUid: String) {
+        if (tUid == "") return
+
+        val childEventListener = object : ChildEventListener {
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                if (!snapshot.exists()) return
+
+                peopleList.add(snapshot.value.toString())
+                peopleUpdated.postValue(true)
             }
-            updatePeople(key.toString(), user.displayName.toString())
+
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                return
+            }
+
+            override fun onChildRemoved(snapshot: DataSnapshot) {
+                return
+            }
+
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+                return
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.d("ChildEventListener", error.message)
+            }
+
         }
+        database.child(tUid).child("people").addChildEventListener(childEventListener)
     }
 
     /**
-     * Gets all entries of user uid.
+     * Adds a child listener that will update transaction list as needed.
      */
-    fun getAllEntries() {
+    private fun addChildListener() {
         CoroutineScope(IO).launch {
-            val transactions: ArrayList<Transaction> = ArrayList()
+            val childListener = object : ChildEventListener {
+                // Filters out newly added children that do not have the same UID as the currently
+                // signed in user.
+                // Adds transaction to transactionList if it does.
+                override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                    if (snapshot.child("ownerUid").value.toString() != user.uid) return
 
+                    val transaction = Transaction().apply {
+                        transactionUid = snapshot.child("transactionUid").value.toString()
+                        transactionName = snapshot.child("transactionName").value.toString()
+                        cost = snapshot.child("cost").value.toString().toDouble()
+                        isShared = snapshot.child("shared").value.toString().toBoolean()
+                        ownerUid = snapshot.child("ownerUid").value.toString()
+                        payerUid = snapshot.child("payerUid").value.toString()
+                        city = snapshot.child("city").value.toString()
+                        country = snapshot.child("country").value.toString()
+                        dateEpoch = snapshot.child("dateEpoch").value.toString().toLong()
+                        parentUid = snapshot.child("parentUid").value.toString()
+                    }
+                    // Add people to list.
+                    val people: ArrayList<String> = ArrayList()
+                    snapshot.child("people").children.forEach { ds ->
+                        people.add(ds.value.toString())
+                    }
+                    transaction.people = people
+
+                    // Add to list.
+                    addToTransactionList(transaction)
+                    listUpdated.postValue(true)
+                }
+
+                // Filters out changed children that do not have the same UID as the currently
+                // signed in user.
+                // Update transaction in transactionList if it does.
+                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                    println("here")
+                    if (snapshot.child("ownerUid").value.toString() != user.uid) return
+
+                    val transaction = Transaction().apply {
+                        transactionUid = snapshot.child("transactionUid").value.toString()
+                        transactionName = snapshot.child("transactionName").value.toString()
+                        cost = snapshot.child("cost").value.toString().toDouble()
+                        isShared = snapshot.child("shared").value.toString().toBoolean()
+                        ownerUid = snapshot.child("ownerUid").value.toString()
+                        payerUid = snapshot.child("payerUid").value.toString()
+                        city = snapshot.child("city").value.toString()
+                        country = snapshot.child("country").value.toString()
+                        dateEpoch = snapshot.child("dateEpoch").value.toString().toLong()
+                        parentUid = snapshot.child("parentUid").value.toString()
+                    }
+                    // Add people to list.
+                    val people: ArrayList<String> = ArrayList()
+                    snapshot.child("people").children.forEach { ds ->
+                        people.add(ds.value.toString())
+                    }
+                    transaction.people = people
+
+                    // Update list.
+                    updateTransactionList(transaction)
+                    listUpdated.postValue(true)
+                }
+
+                // Remove transaction with tUid if shared with user or belongs to user.
+                override fun onChildRemoved(snapshot: DataSnapshot) {
+                    val tUid = snapshot.child("transactionUid").value.toString()
+                    removeFromTransactionList(tUid)
+                    listUpdated.postValue(true)
+                }
+
+                // Should never be moved.
+                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+                    return
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.d("ChildEventListener", error.message)
+                }
+            }
             val valueEventListener = object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val children = snapshot.children
-                    children.forEach {
-                        val transaction = Transaction().apply {
-                            transactionUid = it.key.toString()
-                            transactionName = it.child("transactionName").value.toString()
-                            cost = it.child("cost").value.toString().toDouble()
-                            isShared = it.child("shared").value.toString().toBoolean()
-                            ownerUid = it.child("ownerUid").value.toString()
-                            payerUid = it.child("payerUid").value.toString()
-                            city = it.child("city").value.toString()
-                            country = it.child("country").value.toString()
-                            dateEpoch = it.child("dateEpoch").value.toString().toLong()
-                        }
-                        val people: ArrayList<String> = ArrayList()
-                        it.child("people").children.forEach { ds ->
-                            people.add(ds.value.toString())
-                        }
-                        transaction.people = people
-                        transactions.add(transaction)
-                    }
-                    hasAllEntries.postValue(true)
-                    transactionList.postValue(transactions)
+                    listUpdated.postValue(true)
                 }
 
                 override fun onCancelled(error: DatabaseError) {
                     Log.d("ValueEventListener", error.message)
                 }
+
+            }
+            database.addChildEventListener(childListener)
+            database.addListenerForSingleValueEvent(valueEventListener)
+        }
+    }
+
+    // Adds transaction into transactionList.
+    private fun addToTransactionList(transaction: Transaction) {
+        CoroutineScope(IO).launch {
+            transactionList.add(transaction)
+        }
+    }
+
+    // Removes transaction from transactionList.
+    // Checks if transaction exists inside transactionList.
+    // Remove if it does.
+    private fun removeFromTransactionList(tUid: String) {
+        CoroutineScope(IO).launch {
+            var removeIndex: Int = -1
+            for (i in transactionList.indices) {
+                if (transactionList[i].transactionUid == tUid) {
+                    removeIndex = i
+                    break
+                }
             }
 
-            database.orderByChild("ownerUid").equalTo(user.uid)
-                .addListenerForSingleValueEvent(valueEventListener)
+            if (removeIndex != -1) {
+                transactionList.removeAt(removeIndex)
+            }
+        }
+    }
+
+    // Updates transactionList.
+    // Checks if transaction exists inside transactionList.
+    // Set if it does, add otherwise.
+    private fun updateTransactionList(transaction: Transaction) {
+        CoroutineScope(IO).launch {
+            var updateIndex: Int = -1
+            for (i in transactionList.indices) {
+                if (transactionList[i].transactionUid == transaction.transactionUid) {
+                    updateIndex = i
+                    break
+                }
+            }
+
+            if (updateIndex != -1) {
+                transactionList[updateIndex] = transaction
+            } else {
+                addToTransactionList(transaction)
+            }
+        }
+    }
+
+    /**
+     * Adds an entry of [transaction] into realtime database.
+     */
+    fun addEntry(transaction: Transaction) {
+        CoroutineScope(IO).launch {
+            // Get UID of new transaction.
+            val key = database.push().key.toString()
+
+            // Set UID of transaction.
+            transaction.transactionUid = key
+            transaction.people.add(user.displayName.toString())
+
+            // Add transaction to database.
+            database.child(key).setValue(transaction)
         }
     }
 
@@ -88,61 +233,65 @@ class TransactionsRepository {
      */
     fun deleteEntry(transactionUid: String) {
         CoroutineScope(IO).launch {
-            database.child(transactionUid).removeValue()
-        }
-    }
-
-    /**
-     * Add [name] list with [transactionUid].
-     */
-    fun updatePeople(transactionUid: String, name: String) {
-        CoroutineScope(IO).launch {
-            val key = database.push().key
-            database.child(transactionUid).child("people").child(key.toString()).setValue(name)
-
-            val updated: ArrayList<String> = ArrayList()
             val valueEventListener = object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    if (!snapshot.exists()) {
-                        return
-                    }
+                    if (!snapshot.exists()) return
 
-                    val children = snapshot.children
-                    children.forEach {
-                        if (updated.contains(it.key.toString())) return@forEach
-
-                        updated.add(it.key.toString())
-                        val peopleKey =
-                            database.child(it.key.toString()).child("people").push().key.toString()
-                        database.child(it.key.toString()).child("people").child(peopleKey)
-                            .setValue(name)
+                    snapshot.children.forEach {
+                        if (it.child("parentUid").value.toString() != transactionUid) return@forEach
+                        it.ref.removeValue()
                     }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
                     Log.d("ValueEventListener", error.message)
                 }
-
             }
-            database.orderByChild("transactionUid").equalTo(transactionUid)
-                .addListenerForSingleValueEvent(valueEventListener)
+            database.orderByChild("parentUid").equalTo(transactionUid).addListenerForSingleValueEvent(valueEventListener)
+            database.child(transactionUid).removeValue()
         }
     }
 
+    /**
+     * Set all transactions with [transactionUid] with list [people].
+     */
+    fun updatePeople(transactionUid: String, people: ArrayList<String>) {
+        CoroutineScope(IO).launch {
+            database.child(transactionUid).child("people").setValue(people)
+
+            val valueEventListener = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    snapshot.children.forEach {
+                        database.child(it.key.toString()).child("people").setValue(people)
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.d("ValueEventListener", error.message)
+                }
+            }
+
+            database.orderByChild("parentUid").equalTo(transactionUid).addListenerForSingleValueEvent(valueEventListener)
+        }
+    }
+
+    /**
+     * Adds transaction to transactionList with given [tUid].
+     */
     fun addTransactionByUid(tUid: String, context: Context) {
         CoroutineScope(IO).launch {
             val valueEventListener = object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
+                    // Check validity.
                     if (!snapshot.exists()) {
                         Toast.makeText(
                             context, "Could not find transaction.", Toast.LENGTH_SHORT
                         ).show()
-                        hasAllEntries.postValue(true)
                         return
                     }
 
+                    // Create transaction.
                     val transaction = Transaction().apply {
-                        transactionUid = snapshot.key.toString()
                         transactionName = snapshot.child("transactionName").value.toString()
                         cost = snapshot.child("cost").value.toString().toDouble()
                         isShared = snapshot.child("shared").value.toString().toBoolean()
@@ -151,19 +300,25 @@ class TransactionsRepository {
                         city = snapshot.child("city").value.toString()
                         country = snapshot.child("country").value.toString()
                         dateEpoch = snapshot.child("dateEpoch").value.toString().toLong()
+                        parentUid = snapshot.key.toString()
                     }
+
+                    // Add people to list.
                     val people: ArrayList<String> = ArrayList()
                     snapshot.child("people").children.forEach { ds ->
                         people.add(ds.value.toString())
                     }
-                    updatePeople(transaction.transactionUid, user.displayName.toString())
+                    people.add(user.displayName.toString())
                     transaction.people = people
+                    updatePeople(transaction.parentUid, people)
+
+                    // Add to database.
                     val key = database.push().key.toString()
+                    transaction.transactionUid = key
                     database.child(key).setValue(transaction)
                     Toast.makeText(
                         context, "Successfully added transaction.", Toast.LENGTH_SHORT
                     ).show()
-                    hasAllEntries.postValue(true)
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -180,20 +335,6 @@ class TransactionsRepository {
      */
     fun getUid(): String {
         return user.uid
-    }
-
-    /**
-     * Returns the status of data retrieval.
-     */
-    fun dataStatus(): MutableLiveData<Boolean> {
-        return hasAllEntries
-    }
-
-    /**
-     * Returns the transaction list.
-     */
-    fun getTransactionList(): MutableLiveData<ArrayList<Transaction>> {
-        return transactionList
     }
 
     /**
