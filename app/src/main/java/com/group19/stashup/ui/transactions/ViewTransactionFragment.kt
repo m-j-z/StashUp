@@ -16,6 +16,7 @@ import com.group19.stashup.R
 import com.group19.stashup.databinding.FragmentViewTransactionBinding
 import com.group19.stashup.ui.transactions.database.PersonListViewAdapter
 import com.group19.stashup.ui.transactions.database.Transaction
+import com.group19.stashup.ui.transactions.database.TransactionViewModelFactory
 import com.group19.stashup.ui.transactions.database.TransactionsViewModel
 
 class ViewTransactionFragment : Fragment(), View.OnClickListener {
@@ -28,7 +29,6 @@ class ViewTransactionFragment : Fragment(), View.OnClickListener {
     private lateinit var transactionsViewModel: TransactionsViewModel
     private lateinit var mainViewModel: MainViewModel
     private lateinit var currencyCode: String
-    private lateinit var people: ArrayList<String>
 
     @Suppress("DEPRECATION")
     override fun onCreateView(
@@ -42,7 +42,8 @@ class ViewTransactionFragment : Fragment(), View.OnClickListener {
         mainViewModel.menuId.postValue(R.menu.view_transaction_menu)
         mainViewModel.transaction = transaction
 
-        transactionsViewModel = ViewModelProvider(this)[TransactionsViewModel::class.java]
+        val transactionsViewModelFactory = TransactionViewModelFactory(transaction.transactionUid)
+        transactionsViewModel = ViewModelProvider(this, transactionsViewModelFactory)[TransactionsViewModel::class.java]
 
         setViewsInLayout()
 
@@ -89,9 +90,12 @@ class ViewTransactionFragment : Fragment(), View.OnClickListener {
             binding.addPersonBtn.visibility = Button.INVISIBLE
         }
 
-        people = transaction.people
-        val listAdapter = PersonListViewAdapter(people, transaction, requireActivity())
-        binding.listView.adapter = listAdapter
+        transactionsViewModel.peopleUpdated.observe(viewLifecycleOwner) {
+            if (!it) return@observe
+
+            val listAdapter = PersonListViewAdapter(transactionsViewModel.peopleList, transaction, requireActivity())
+            binding.listView.adapter = listAdapter
+        }
     }
 
     override fun onDestroyView() {
@@ -124,12 +128,14 @@ class ViewTransactionFragment : Fragment(), View.OnClickListener {
             setTitle("Enter the name:")
             setView(editText)
             setPositiveButton("OK") { _: DialogInterface, _: Int ->
+                val people: ArrayList<String> = ArrayList()
+                transactionsViewModel.peopleList.forEach {
+                    people.add(it)
+                }
                 people.add(editText.text.toString())
-                val listAdapter = PersonListViewAdapter(people, transaction, requireActivity())
-                binding.listView.adapter = listAdapter
                 transactionsViewModel.updatePeople(
                     transaction.transactionUid,
-                    editText.text.toString()
+                    people
                 )
 
                 var yourCost =
