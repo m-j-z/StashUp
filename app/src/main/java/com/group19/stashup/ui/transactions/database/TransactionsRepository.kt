@@ -30,11 +30,18 @@ class TransactionsRepository(tUid: String) {
 
     private var database: DatabaseReference = Firebase.database.reference.child("transaction")
 
+    /**
+     * Add listener for list of people.
+     * Add listener for list of transactions.
+     */
     init {
         setListenerForPeople(tUid)
         addChildListener()
     }
 
+    /**
+     * Create a listener for a particular transaction for live updates of list of persons.
+     */
     private fun setListenerForPeople(tUid: String) {
         if (tUid == "") return
 
@@ -78,6 +85,7 @@ class TransactionsRepository(tUid: String) {
                 override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                     if (snapshot.child("ownerUid").value.toString() != user.uid) return
 
+                    // Create new transaction.
                     val transaction = Transaction().apply {
                         transactionUid = snapshot.child("transactionUid").value.toString()
                         transactionName = snapshot.child("transactionName").value.toString()
@@ -90,6 +98,7 @@ class TransactionsRepository(tUid: String) {
                         dateEpoch = snapshot.child("dateEpoch").value.toString().toLong()
                         parentUid = snapshot.child("parentUid").value.toString()
                     }
+
                     // Add people to list.
                     val people: ArrayList<String> = ArrayList()
                     snapshot.child("people").children.forEach { ds ->
@@ -108,6 +117,7 @@ class TransactionsRepository(tUid: String) {
                 override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
                     if (snapshot.child("ownerUid").value.toString() != user.uid) return
 
+                    // Create transaction.
                     val transaction = Transaction().apply {
                         transactionUid = snapshot.child("transactionUid").value.toString()
                         transactionName = snapshot.child("transactionName").value.toString()
@@ -120,6 +130,7 @@ class TransactionsRepository(tUid: String) {
                         dateEpoch = snapshot.child("dateEpoch").value.toString().toLong()
                         parentUid = snapshot.child("parentUid").value.toString()
                     }
+
                     // Add people to list.
                     val people: ArrayList<String> = ArrayList()
                     snapshot.child("people").children.forEach { ds ->
@@ -148,6 +159,8 @@ class TransactionsRepository(tUid: String) {
                     Log.d("ChildEventListener", error.message)
                 }
             }
+
+            // To remove progress bar if there is no data to display on list view.
             val valueEventListener = object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     listUpdated.postValue(true)
@@ -329,6 +342,9 @@ class TransactionsRepository(tUid: String) {
         }
     }
 
+    /**
+     * Update entry at [tUid] with [transaction].
+     */
     fun updateEntry(tUid: String, transaction: Transaction) {
         CoroutineScope(IO).launch {
             database.child(tUid).setValue(transaction)

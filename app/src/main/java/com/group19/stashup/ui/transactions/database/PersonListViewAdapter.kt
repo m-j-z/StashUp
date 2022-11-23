@@ -9,6 +9,7 @@ import android.widget.BaseAdapter
 import android.widget.TextView
 import androidx.preference.PreferenceManager
 import com.group19.stashup.R
+import java.util.Currency
 
 class PersonListViewAdapter(
     private val dataList: List<String>,
@@ -53,17 +54,23 @@ class PersonListViewAdapter(
         }
         newView!!
 
+        // Get currency code and symbol.
         val preference = PreferenceManager.getDefaultSharedPreferences(context)
         val currencyCode = preference.getString("currency", "CAD")
+        val currencySymbol = Currency.getInstance(currencyCode).symbol
 
+        // Get data from data list at position.
         val data = dataList[position]
 
+        // Get transaction name and cost views.
         val transactionName: TextView = newView.findViewById(R.id.name_tv)
         val transactionCost: TextView = newView.findViewById(R.id.cost_tv)
 
+        // Set transaction name.
         transactionName.text = data
 
-        val cost = "$ ${String.format("%.2f", transaction.cost / dataList.size)} $currencyCode"
+        // Set transaction cost.
+        val cost = "$currencySymbol ${String.format("%.2f", transaction.cost / dataList.size)}"
         transactionCost.text = cost
 
         return newView
