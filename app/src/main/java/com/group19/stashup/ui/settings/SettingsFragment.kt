@@ -12,11 +12,14 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import com.group19.stashup.R
 import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.LinkedHashMap
 
 class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClickListener,
     SearchView.OnQueryTextListener {
     private lateinit var currencyPreference: Preference
     private lateinit var currencyList: ArrayList<String>
+    private lateinit var nameCodeList: LinkedHashMap<String, String>
     private lateinit var listAdapter: ArrayAdapter<String>
     private lateinit var currencyDialog: AlertDialog
 
@@ -58,14 +61,19 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
         val listView: ListView = view.findViewById(R.id.list_view)
         currencyList = ArrayList()
         val date = Date(System.currentTimeMillis())
+        nameCodeList = LinkedHashMap()
         Locale.getAvailableLocales().forEach {
             Currency.getAvailableCurrencyCodes(it, date)?.forEach { code ->
-                if (!currencyList.contains(code)) {
-                    currencyList.add(code)
+                val currencyName = Currency.getInstance(code).displayName
+                if (!currencyList.contains(currencyName)) {
+                    currencyList.add(currencyName)
+                    nameCodeList[currencyName] = code
                 }
             }
         }
         currencyList.sort()
+
+        // Set list view with items.
         listAdapter =
             ArrayAdapter(requireActivity(), android.R.layout.simple_list_item_1, currencyList)
         listView.adapter = listAdapter
@@ -74,7 +82,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
             currencyPreference.summary = item
 
             sharedPreferences.edit().apply {
-                putString(currencyPreference.key, item)
+                putString(currencyPreference.key, nameCodeList[item])
                 apply()
             }
             currencyDialog.cancel()
