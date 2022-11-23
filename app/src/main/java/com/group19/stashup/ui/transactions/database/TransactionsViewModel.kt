@@ -1,5 +1,6 @@
 package com.group19.stashup.ui.transactions.database
 
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import java.time.LocalDateTime
@@ -49,6 +50,13 @@ class TransactionsViewModel : ViewModel() {
      */
     fun updatePeople(transactionUid: String, name: String) {
         transactionsRepository.updatePeople(transactionUid, name)
+    }
+
+    /**
+     * Get transaction with [tUid].
+     */
+    fun addTransactionByUid(tUid: String, context: Context) {
+        transactionsRepository.addTransactionByUid(tUid, context)
     }
 
     /**

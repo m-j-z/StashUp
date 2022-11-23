@@ -9,6 +9,7 @@ import android.view.animation.AnimationUtils
 import android.widget.ProgressBar
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
@@ -55,6 +56,8 @@ class TransactionFragment : Fragment(), View.OnClickListener {
     private lateinit var navController: NavController
 
     private lateinit var transactionsViewModel: TransactionsViewModel
+    private lateinit var status: MutableLiveData<Boolean>
+    private lateinit var transactions: MutableLiveData<ArrayList<Transaction>>
 
     /**
      * To switch to next fragment...
@@ -74,6 +77,8 @@ class TransactionFragment : Fragment(), View.OnClickListener {
         // Add on click listeners
         binding.createFab.setOnClickListener(this)
         binding.createNewCv.setOnClickListener(this)
+        binding.manualExistingCv.setOnClickListener(this)
+        binding.qrExistingCv.setOnClickListener(this)
 
         // Create listview
         binding.progressBar.visibility = ProgressBar.VISIBLE
@@ -88,10 +93,13 @@ class TransactionFragment : Fragment(), View.OnClickListener {
      */
     private fun initializeListSearchView() {
         transactionsViewModel.getAllEntries()
-        transactionsViewModel.dataStatus().observe(viewLifecycleOwner) {
+
+        status = transactionsViewModel.dataStatus()
+        status.observe(viewLifecycleOwner) {
             if (!it) return@observe
 
-            transactionsViewModel.getTransactionList().observe(viewLifecycleOwner) { list ->
+            transactions = transactionsViewModel.getTransactionList()
+            transactions.observe(viewLifecycleOwner) { list ->
                 val transactionList: ArrayList<Transaction> = ArrayList()
                 list.forEach { item ->
                     transactionList.add(item)
@@ -125,6 +133,14 @@ class TransactionFragment : Fragment(), View.OnClickListener {
                 navController.navigate(R.id.action_nav_transactions_to_createTransactionFragment)
                 onFabPressed()
             }
+            R.id.manual_existing_cv -> {
+                navController.navigate(R.id.action_nav_transactions_to_manualExistingFragment)
+                onFabPressed()
+            }
+            R.id.qr_existing_cv -> {
+                navController.navigate(R.id.action_nav_transactions_to_qrExistingFragment)
+                onFabPressed()
+            }
         }
     }
 
@@ -136,10 +152,18 @@ class TransactionFragment : Fragment(), View.OnClickListener {
             binding.createFab.startAnimation(rotateCloseAnimation)
             binding.createNewCv.visibility = MaterialCardView.GONE
             binding.createNewCv.startAnimation(toBottomAnimation)
+            binding.manualExistingCv.visibility = MaterialCardView.GONE
+            binding.manualExistingCv.startAnimation(toBottomAnimation)
+            binding.qrExistingCv.visibility = MaterialCardView.GONE
+            binding.qrExistingCv.startAnimation(toBottomAnimation)
         } else {
             binding.createFab.startAnimation(rotateOpenAnimation)
             binding.createNewCv.visibility = MaterialCardView.VISIBLE
             binding.createNewCv.startAnimation(fromBottomAnimation)
+            binding.manualExistingCv.visibility = MaterialCardView.VISIBLE
+            binding.manualExistingCv.startAnimation(fromBottomAnimation)
+            binding.qrExistingCv.visibility = MaterialCardView.VISIBLE
+            binding.qrExistingCv.startAnimation(fromBottomAnimation)
         }
         fabExpanded = !fabExpanded
     }

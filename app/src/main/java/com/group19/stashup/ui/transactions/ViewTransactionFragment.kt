@@ -2,9 +2,7 @@ package com.group19.stashup.ui.transactions
 
 import android.content.DialogInterface
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
@@ -12,6 +10,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
+import com.google.android.material.card.MaterialCardView
+import com.group19.stashup.MainViewModel
 import com.group19.stashup.R
 import com.group19.stashup.databinding.FragmentViewTransactionBinding
 import com.group19.stashup.ui.transactions.database.PersonListViewAdapter
@@ -26,6 +26,7 @@ class ViewTransactionFragment : Fragment(), View.OnClickListener {
 
     private lateinit var transaction: Transaction
     private lateinit var transactionsViewModel: TransactionsViewModel
+    private lateinit var mainViewModel: MainViewModel
     private lateinit var currencyCode: String
     private lateinit var people: ArrayList<String>
 
@@ -35,6 +36,11 @@ class ViewTransactionFragment : Fragment(), View.OnClickListener {
     ): View {
         _binding = FragmentViewTransactionBinding.inflate(inflater, container, false)
         transaction = requireArguments().getParcelable("transaction")!!
+
+        // Add overflow menu.
+        mainViewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
+        mainViewModel.menuId.postValue(R.menu.view_transaction_menu)
+        mainViewModel.transaction = transaction
 
         transactionsViewModel = ViewModelProvider(this)[TransactionsViewModel::class.java]
 
@@ -75,7 +81,11 @@ class ViewTransactionFragment : Fragment(), View.OnClickListener {
         binding.payReceiveTv.text = yourCost
         binding.totalCostTv.text = cost
         if (!transaction.isShared) {
-            binding.listViewCv.visibility = Button.INVISIBLE
+            binding.listViewCv.visibility = MaterialCardView.INVISIBLE
+            binding.addPersonBtn.visibility = Button.INVISIBLE
+        }
+
+        if (transaction.ownerUid != transaction.payerUid) {
             binding.addPersonBtn.visibility = Button.INVISIBLE
         }
 
@@ -123,7 +133,12 @@ class ViewTransactionFragment : Fragment(), View.OnClickListener {
                 )
 
                 var yourCost =
-                    "-$ ${String.format("%.2f", transaction.cost / transaction.people.size)} $currencyCode"
+                    "-$ ${
+                        String.format(
+                            "%.2f",
+                            transaction.cost / transaction.people.size
+                        )
+                    } $currencyCode"
                 if (transaction.ownerUid == transaction.payerUid) {
                     binding.payReceiveTv.setTextColor(requireActivity().getColor(R.color.green))
                     yourCost = "+$ ${

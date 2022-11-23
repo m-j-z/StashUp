@@ -1,6 +1,8 @@
 package com.group19.stashup.ui.transactions.database
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -77,7 +79,7 @@ class TransactionsRepository {
             }
 
             database.orderByChild("ownerUid").equalTo(user.uid)
-                .addValueEventListener(valueEventListener)
+                .addListenerForSingleValueEvent(valueEventListener)
         }
     }
 
@@ -97,6 +99,79 @@ class TransactionsRepository {
         CoroutineScope(IO).launch {
             val key = database.push().key
             database.child(transactionUid).child("people").child(key.toString()).setValue(name)
+
+            val updated: ArrayList<String> = ArrayList()
+            val valueEventListener = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (!snapshot.exists()) {
+                        return
+                    }
+
+                    val children = snapshot.children
+                    children.forEach {
+                        if (updated.contains(it.key.toString())) return@forEach
+
+                        updated.add(it.key.toString())
+                        val peopleKey =
+                            database.child(it.key.toString()).child("people").push().key.toString()
+                        database.child(it.key.toString()).child("people").child(peopleKey)
+                            .setValue(name)
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.d("ValueEventListener", error.message)
+                }
+
+            }
+            database.orderByChild("transactionUid").equalTo(transactionUid)
+                .addListenerForSingleValueEvent(valueEventListener)
+        }
+    }
+
+    fun addTransactionByUid(tUid: String, context: Context) {
+        CoroutineScope(IO).launch {
+            val valueEventListener = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (!snapshot.exists()) {
+                        Toast.makeText(
+                            context, "Could not find transaction.", Toast.LENGTH_SHORT
+                        ).show()
+                        hasAllEntries.postValue(true)
+                        return
+                    }
+
+                    val transaction = Transaction().apply {
+                        transactionUid = snapshot.key.toString()
+                        transactionName = snapshot.child("transactionName").value.toString()
+                        cost = snapshot.child("cost").value.toString().toDouble()
+                        isShared = snapshot.child("shared").value.toString().toBoolean()
+                        ownerUid = user.uid
+                        payerUid = snapshot.child("payerUid").value.toString()
+                        city = snapshot.child("city").value.toString()
+                        country = snapshot.child("country").value.toString()
+                        dateEpoch = snapshot.child("dateEpoch").value.toString().toLong()
+                    }
+                    val people: ArrayList<String> = ArrayList()
+                    snapshot.child("people").children.forEach { ds ->
+                        people.add(ds.value.toString())
+                    }
+                    updatePeople(transaction.transactionUid, user.displayName.toString())
+                    transaction.people = people
+                    val key = database.push().key.toString()
+                    database.child(key).setValue(transaction)
+                    Toast.makeText(
+                        context, "Successfully added transaction.", Toast.LENGTH_SHORT
+                    ).show()
+                    hasAllEntries.postValue(true)
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.d("ValueEventListener", error.message)
+                }
+
+            }
+            database.child(tUid).addListenerForSingleValueEvent(valueEventListener)
         }
     }
 
