@@ -2,6 +2,7 @@ package com.group19.stashup.ui.transactions
 
 import android.Manifest
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +25,7 @@ class QrExistingFragment : Fragment() {
     // ViewModels
     private lateinit var transactionsViewModel: TransactionsViewModel
 
+    // Request permission for camera.
     private val requestPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             if (it) {
@@ -31,16 +33,26 @@ class QrExistingFragment : Fragment() {
             }
         }
 
+    // Launches QR scanner and try to add item to existing view.
     private val scanQrCodeLauncher = registerForActivityResult(ScanQRCode()) {
-        val qrValue = it as QRResult.QRSuccess
-        transactionsViewModel.addTransactionByUid(qrValue.content.rawValue, requireActivity())
-        transactionsViewModel.dataStatus().observe(viewLifecycleOwner) { isDone ->
-            if (!isDone) return@observe
+        try {
+            val qrValue = it as QRResult.QRSuccess
 
+            transactionsViewModel.listUpdated.observe(viewLifecycleOwner) { isDone ->
+                if (!isDone) return@observe
+
+                requireActivity().onBackPressedDispatcher.onBackPressed()
+            }
+            transactionsViewModel.addTransactionByUid(qrValue.content.rawValue, requireActivity())
+        } catch (e: ClassCastException) {
+            Log.e("QrScanner", e.message.toString())
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
     }
 
+    /**
+     * Ask for camera permission and launch QR scanner if possible.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (ContextCompat.checkSelfPermission(
@@ -53,12 +65,14 @@ class QrExistingFragment : Fragment() {
         }
     }
 
+    /**
+     * Create binding and initialize transactionViewModel.
+     */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentQrExistingBinding.inflate(inflater, container, false)
         transactionsViewModel = ViewModelProvider(this)[TransactionsViewModel::class.java]
-
         return binding.root
     }
 }

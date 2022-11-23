@@ -49,17 +49,17 @@ class ManualExistingFragment : Fragment(), View.OnClickListener {
                 if (checkFields()) {
                     binding.linearLayout.visibility = LinearLayout.GONE
                     binding.progressBar.visibility = ProgressBar.VISIBLE
-                    transactionsViewModel.addTransactionByUid(
-                        binding.transactionIdEt.text.toString(),
-                        requireActivity()
-                    )
-                    transactionsViewModel.dataStatus().observe(viewLifecycleOwner) {
+                    transactionsViewModel.listUpdated.observe(viewLifecycleOwner) {
                         if (!it) return@observe
 
                         binding.progressBar.visibility = ProgressBar.GONE
                         binding.linearLayout.visibility = LinearLayout.VISIBLE
                         requireActivity().onBackPressedDispatcher.onBackPressed()
                     }
+                    transactionsViewModel.addTransactionByUid(
+                        binding.transactionIdEt.text.toString(),
+                        requireActivity()
+                    )
                 }
             }
         }
