@@ -13,7 +13,8 @@ data class Transaction(
     var city: String = "",
     var country: String = "",
     var dateEpoch: Long = 0,
-    var people: ArrayList<String>
+    var people: ArrayList<String>,
+    var parentUid: String = ""
 ) : Parcelable {
     constructor() : this(people = arrayListOf())
 

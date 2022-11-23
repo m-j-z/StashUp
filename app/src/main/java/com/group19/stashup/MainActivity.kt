@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
@@ -66,6 +67,28 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
         mainViewModel = ViewModelProvider(this)[MainViewModel::class.java]
+        loadOptionsMenu()
+
+        auth = Firebase.auth
+
+        checkLoginStatus()
+
+        // If not signed in, launch LoginActivity and prevent coming back to MainActivity.
+        val checkUser = auth.currentUser
+        if (checkUser == null) {
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
+        } else {
+            user = checkUser
+            initializeLayoutViews()
+        }
+    }
+
+    /**
+     * Load options menu if necessary.
+     */
+    private fun loadOptionsMenu() {
         mainViewModel.menuId.observe(this) {
             if (it == null) return@observe
 
@@ -82,31 +105,29 @@ class MainActivity : AppCompatActivity() {
                 R.id.generate_qr -> {
                     generateQrCode()
                 }
-                R.id.change_settings -> {}
+                R.id.change_settings -> {
+                    displaySettings()
+                }
             }
 
             return@setOnMenuItemClickListener true
         }
-
-        auth = Firebase.auth
-
-        checkLoginStatus()
-
-        val checkUser = auth.currentUser
-        if (checkUser == null) {
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
-            finish()
-        } else {
-            user = checkUser
-            initializeLayoutViews()
-        }
     }
 
+    private fun displaySettings() {
+        val bundle = bundleOf("transaction" to mainViewModel.transaction)
+        findNavController(R.id.nav_host_fragment_content_main).navigate(R.id.action_viewTransactionFragment_to_createTransactionFragment, bundle)
+    }
+
+    /**
+     * Generate and display QR code for given transaction.
+     */
     private fun generateQrCode() {
+        // Generates QR code.
         val qrWriter = QRCodeWriter()
         val bitMatrix = qrWriter.encode(mainViewModel.transaction.transactionUid, BarcodeFormat.QR_CODE, 512, 512)
 
+        // Transforms bitMatrix to pixel (IntArray).
         val w = bitMatrix.width
         val h = bitMatrix.height
         val pixels = IntArray(w * h)
@@ -116,9 +137,11 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // Get bitmap from pixels.
         val bitmap = Bitmap.createBitmap(bitMatrix.width, bitMatrix.height, Bitmap.Config.ARGB_8888)
         bitmap.setPixels(pixels, 0, bitMatrix.width, 0, 0, bitMatrix.width, bitMatrix.height)
 
+        // Create and display dialog.
         val builder = AlertDialog.Builder(this)
 
         val imageView = ImageView(this)
@@ -136,7 +159,6 @@ class MainActivity : AppCompatActivity() {
      * Create dialog that displays the transaction ID.
      */
     private fun createDisplayIdDialog() {
-        val builder = AlertDialog.Builder(this)
         // Create drawable.
         val drawable = ContextCompat.getDrawable(this, R.drawable.ic_copy_24)!!
         drawable.setBounds(0, 0, 64, 64)
@@ -157,6 +179,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // Create and display dialog.
+        val builder = AlertDialog.Builder(this)
         builder.apply {
             setTitle("Transaction ID")
             setView(editText)

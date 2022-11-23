@@ -30,6 +30,16 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
     private lateinit var currentList: ArrayList<String>
     private lateinit var listAdapter: ArrayAdapter<String>
 
+    private lateinit var transaction: Transaction
+
+    @Suppress("DEPRECATION")
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (arguments != null) {
+            transaction = requireArguments().getParcelable("transaction")!!
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -61,6 +71,16 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
 
         // Create TransactionViewModel
         transactionsViewModel = ViewModelProvider(this)[TransactionsViewModel::class.java]
+
+        // Load data from passed Transaction
+        if (this::transaction.isInitialized) {
+            transactionsViewModel.transactionName = transaction.transactionName
+            transactionsViewModel.cost = transaction.cost
+            transactionsViewModel.city = transaction.city
+            transactionsViewModel.country = transaction.country
+            transactionsViewModel.isShared = transaction.isShared
+            transactionsViewModel.creatorPaid = transaction.ownerUid == transaction.payerUid
+        }
 
         // Load data
         binding.nameEt.setText(transactionsViewModel.transactionName)
@@ -230,7 +250,14 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
             people = arrayListOf()
         }
 
-        transactionsViewModel.addEntry(transaction)
+        if (this::transaction.isInitialized) {
+            transaction.transactionUid = this.transaction.transactionUid
+            transaction.people = this.transaction.people
+            transaction.parentUid = this.transaction.parentUid
+            transactionsViewModel.updateEntry(this.transaction.transactionUid, transaction)
+        } else {
+            transactionsViewModel.addEntry(transaction)
+        }
 
         // On finish
         Toast.makeText(requireActivity(), "Transaction saved.", Toast.LENGTH_SHORT).show()
@@ -245,6 +272,7 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
 
         if (buttonView.id == R.id.shared_cb) {
             binding.payCb.isEnabled = isChecked
+            binding.payCb.isChecked = false
         }
     }
 

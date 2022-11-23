@@ -59,7 +59,11 @@
         android:id="@+id/viewTransactionFragment"
         android:name="com.group19.stashup.ui.transactions.ViewTransactionFragment"
         android:label="@string/menu_transactions"
-        tools:layout="@layout/fragment_view_transaction" />
+        tools:layout="@layout/fragment_view_transaction" >
+        <action
+            android:id="@+id/action_viewTransactionFragment_to_createTransactionFragment"
+            app:destination="@id/createTransactionFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/createTransactionFragment"

@@ -1,13 +1,17 @@
 package com.group19.stashup.ui.transactions.database
 
 import android.content.Context
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 
-class TransactionsViewModel : ViewModel() {
-    private var transactionsRepository = TransactionsRepository()
+class TransactionsViewModel(tUid: String = "") : ViewModel() {
+    private var transactionsRepository = TransactionsRepository(tUid)
+    var transactionList = transactionsRepository.transactionList
+    var listUpdated = transactionsRepository.listUpdated
+
+    var peopleList = transactionsRepository.peopleList
+    var peopleUpdated = transactionsRepository.peopleUpdated
 
     var name = transactionsRepository.getName()
     var uid = transactionsRepository.getUid()
@@ -32,24 +36,17 @@ class TransactionsViewModel : ViewModel() {
     }
 
     /**
-     * Gets all entries of user uid.
+     * Deletes transaction with [tUid].
      */
-    fun getAllEntries() {
-        transactionsRepository.getAllEntries()
+    fun deleteEntry(tUid: String) {
+        transactionsRepository.deleteEntry(tUid)
     }
 
     /**
-     * Deletes transaction with [transactionUid].
+     * Add [name] list with [tUid].
      */
-    fun deleteEntry(transactionUid: String) {
-        transactionsRepository.deleteEntry(transactionUid)
-    }
-
-    /**
-     * Add [name] list with [transactionUid].
-     */
-    fun updatePeople(transactionUid: String, name: String) {
-        transactionsRepository.updatePeople(transactionUid, name)
+    fun updatePeople(tUid: String, people: ArrayList<String>) {
+        transactionsRepository.updatePeople(tUid, people)
     }
 
     /**
@@ -60,16 +57,9 @@ class TransactionsViewModel : ViewModel() {
     }
 
     /**
-     * Returns the status of data retrieval.
+     *
      */
-    fun dataStatus(): MutableLiveData<Boolean> {
-        return transactionsRepository.dataStatus()
-    }
-
-    /**
-     * Returns the transaction list.
-     */
-    fun getTransactionList(): MutableLiveData<ArrayList<Transaction>> {
-        return transactionsRepository.getTransactionList()
+    fun updateEntry(tUid: String, transaction: Transaction) {
+        transactionsRepository.updateEntry(tUid, transaction)
     }
 }
