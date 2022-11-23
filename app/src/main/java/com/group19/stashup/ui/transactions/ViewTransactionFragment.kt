@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
+import com.google.android.material.card.MaterialCardView
 import com.group19.stashup.MainViewModel
 import com.group19.stashup.R
 import com.group19.stashup.databinding.FragmentViewTransactionBinding
@@ -80,7 +81,11 @@ class ViewTransactionFragment : Fragment(), View.OnClickListener {
         binding.payReceiveTv.text = yourCost
         binding.totalCostTv.text = cost
         if (!transaction.isShared) {
-            binding.listViewCv.visibility = Button.INVISIBLE
+            binding.listViewCv.visibility = MaterialCardView.INVISIBLE
+            binding.addPersonBtn.visibility = Button.INVISIBLE
+        }
+
+        if (transaction.ownerUid != transaction.payerUid) {
             binding.addPersonBtn.visibility = Button.INVISIBLE
         }
 
