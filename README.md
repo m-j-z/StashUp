@@ -1,1 +1,3 @@
 # StashUp
+
+theme: minima
