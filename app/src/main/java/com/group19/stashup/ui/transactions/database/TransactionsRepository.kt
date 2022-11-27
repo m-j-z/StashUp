@@ -45,32 +45,34 @@ class TransactionsRepository(tUid: String) {
     private fun setListenerForPeople(tUid: String) {
         if (tUid == "") return
 
-        val childEventListener = object : ChildEventListener {
-            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                if (!snapshot.exists()) return
+        CoroutineScope(IO).launch {
+            val childEventListener = object : ChildEventListener {
+                override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                    if (!snapshot.exists()) return
 
-                peopleList.add(snapshot.value.toString())
-                peopleUpdated.postValue(true)
+                    peopleList.add(snapshot.value.toString())
+                    peopleUpdated.postValue(true)
+                }
+
+                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                    return
+                }
+
+                override fun onChildRemoved(snapshot: DataSnapshot) {
+                    return
+                }
+
+                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+                    return
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.d("ChildEventListener", error.message)
+                }
+
             }
-
-            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-                return
-            }
-
-            override fun onChildRemoved(snapshot: DataSnapshot) {
-                return
-            }
-
-            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
-                return
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.d("ChildEventListener", error.message)
-            }
-
+            database.child(tUid).child("people").addChildEventListener(childEventListener)
         }
-        database.child(tUid).child("people").addChildEventListener(childEventListener)
     }
 
     /**
