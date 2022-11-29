@@ -54,7 +54,7 @@ class HomeFragment : Fragment() {
             if (!it) return@observe
 
             // If list is updated.
-            // Remove progress bar.
+        
 
 
             var transactionList = transactionsrepo.transactionList
