@@ -9,6 +9,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
 import com.group19.stashup.R
 import com.group19.stashup.databinding.FragmentHomeBinding
 import com.group19.stashup.ui.transactions.database.*
@@ -21,6 +22,7 @@ class HomeFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
     private lateinit var transactionListView: ListView
+    private lateinit var navc: NavController
 
     //    private lateinit var database: InformationDatabase
 //    private lateinit var databaseDao: InformationDatabaseDao
@@ -69,7 +71,7 @@ class HomeFragment : Fragment() {
         binding.lv.setOnItemClickListener { _, _, position, _ ->
             val item = binding.lv.adapter.getItem(position)
             val bundle = bundleOf("transaction" to item)
-            //  navController.navigate(R.id.action_nav_transactions_to_viewTransactionFragment, bundle)
+              navc.navigate(R.id.action_nav_transactions_to_viewTransactionFragment, bundle)
         }
 
         return binding.root
