@@ -12,7 +12,7 @@ import com.group19.stashup.R
 import java.util.Currency
 
 class TransactionListViewAdapter(
-    private val dataList: List<Transaction>,
+    private val dataList: ArrayList<Transaction>,
     private val context: Context
 ) : BaseAdapter() {
     private var layoutInflater: LayoutInflater? = null

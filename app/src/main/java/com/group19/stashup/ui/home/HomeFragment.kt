@@ -4,13 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ListView
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
+import com.group19.stashup.R
 import com.group19.stashup.databinding.FragmentHomeBinding
-import com.group19.stashup.ui.transactions.database.TransactionListViewAdapter
-import com.group19.stashup.ui.transactions.database.TransactionsRepository
-import com.group19.stashup.ui.transactions.database.TransactionsViewModel
+import com.group19.stashup.ui.transactions.database.*
 
 class HomeFragment : Fragment() {
 
@@ -19,14 +20,16 @@ class HomeFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+    private lateinit var transactionListView: ListView
 
-    private lateinit var tabs:ArrayList<Fragment>
-
-    private lateinit var lvadapter: TransactionListViewAdapter
-
+    //    private lateinit var database: InformationDatabase
+//    private lateinit var databaseDao: InformationDatabaseDao
+    private lateinit var repository: TransactionsRepository
     private lateinit var transactionsVM: TransactionsViewModel
+    private lateinit var factory: TransactionViewModelFactory
+    private lateinit var arrayList: ArrayList<com.google.firebase.database.Transaction>
+    private lateinit var arrayAdapter: TransactionListViewAdapter
 
-    private lateinit var transactionsrepo: TransactionsRepository
 
     var isLoaded: MutableLiveData<Boolean> = MutableLiveData(false)
     private var homeListv: ArrayList<TransactionsViewModel> = ArrayList()
@@ -47,28 +50,27 @@ class HomeFragment : Fragment() {
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
-
         transactionsVM = ViewModelProvider(this)[TransactionsViewModel::class.java]
 
         transactionsVM.listUpdated.observe(viewLifecycleOwner) {
             if (!it) return@observe
 
-            // If list is updated.
-        
+            val transactionList: ArrayList<Transaction> = ArrayList()
+            transactionsVM.transactionList.forEach { item ->
+                transactionList.add(item)
+            }
 
-
-            var transactionList = transactionsrepo.transactionList
-            var listUpdated = transactionsrepo.listUpdated
-
+            // Create new adapter and set list view adapter to display data.
             val listAdapter = TransactionListViewAdapter(transactionList, requireActivity())
             binding.lv.adapter = listAdapter
-
         }
 
-        // Create ViewModel.
-//      /  val transactionsViewModelFactory = TransactionViewModelFactory(transaction.transactionUid)
-        //  transactionsVM = ViewModelProvider(this, transactionsViewModelFactory)[TransactionsViewModel::class.java]
-
+        // On click of list view item, start ViewTransactionFragment.
+        binding.lv.setOnItemClickListener { _, _, position, _ ->
+            val item = binding.lv.adapter.getItem(position)
+            val bundle = bundleOf("transaction" to item)
+            //  navController.navigate(R.id.action_nav_transactions_to_viewTransactionFragment, bundle)
+        }
 
         return binding.root
     }
