@@ -6,7 +6,29 @@
 
 [Show and Tell 2](https://youtu.be/P-O299EfgAY)
 
-[Final Presentation]()
+<details>
+  <summary>Team Effort Breakdown</summary>
+  
+  ### Scott Luu
+  ```
+  TBD
+  ```
+  
+  ### Tejeshwar Singh Multani
+  ```
+  TBD
+  ```
+  
+  ### Michael Zhu
+  ```
+  TBD
+  ```
+  
+</details>
+
+[MVVM and Thread Design Diagram](https://docs.google.com/presentation/d/1CjuodK9SNi6eGaUnif9J1mQivT2SN5kppOBAr81Drfg/edit?usp=sharing)
+
+[Final Presentation Video]()
 
 [APK here]()
 
