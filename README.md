@@ -6,4 +6,8 @@
 
 [Show and Tell 2](https://youtu.be/P-O299EfgAY)
 
-[Repository](https://github.com/m-j-z/StashUp)
+[Final Presentation]()
+
+[APK here]()
+
+[Source Code](https://github.com/m-j-z/StashUp)
