@@ -87,6 +87,17 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
             transactionsViewModel.country = transaction.country
             transactionsViewModel.isShared = transaction.isShared
             transactionsViewModel.creatorPaid = transaction.ownerUid == transaction.payerUid
+
+            if (transaction.ownerUid != transaction.payerUid) {
+                binding.nameEt.isEnabled = false
+                binding.costEt.isEnabled = false
+                binding.setLocationCv.isClickable = false
+                binding.sharedCb.isClickable = false
+                binding.payCb.isClickable = false
+
+                binding.discardBtn.visibility = Button.GONE
+                binding.saveBtn.visibility = Button.GONE
+            }
         }
 
         // Load data.
@@ -278,7 +289,9 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
             transaction.transactionUid = this.transaction.transactionUid
             transaction.people = this.transaction.people
             transaction.parentUid = this.transaction.parentUid
+            transaction.payerUid = this.transaction.payerUid
             transactionsViewModel.updateEntry(this.transaction.transactionUid, transaction)
+            findNavController().popBackStack()
         } else { // Else add as new transaction.
             transactionsViewModel.addEntry(transaction)
         }
