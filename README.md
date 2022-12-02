@@ -29,6 +29,7 @@
   Implemented methods that stores transaction data to and retrieves transaction data from Firebase database with MVVM architecture
   Implemented methods that generates and reads QR codes that can retrieve transaction data from Firebase database
   Implemented a custom BaseAdapter that displays transactions in a ListView
+  Implemented a custom BaseAdapter that displays persons in a ListView
   </pre>
   
 </details>
