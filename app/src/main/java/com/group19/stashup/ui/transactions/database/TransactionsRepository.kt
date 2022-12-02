@@ -350,6 +350,25 @@ class TransactionsRepository(tUid: String) {
     fun updateEntry(tUid: String, transaction: Transaction) {
         CoroutineScope(IO).launch {
             database.child(tUid).setValue(transaction)
+            val valueEventListener = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (!snapshot.exists()) return
+
+                    snapshot.children.forEach {
+                        it.ref.child("transactionName").setValue(transaction.transactionName)
+                        it.ref.child("cost").setValue(transaction.cost)
+                        it.ref.child("city").setValue(transaction.city)
+                        it.ref.child("country").setValue(transaction.country)
+                        it.ref.child("shared").setValue(transaction.isShared)
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.d("ValueEventListener", error.message)
+                }
+
+            }
+            database.orderByChild("parentUid").equalTo(tUid).addListenerForSingleValueEvent(valueEventListener)
         }
     }
 
