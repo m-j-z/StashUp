@@ -26,6 +26,7 @@ class TransactionsViewModel(tUid: String = "") : ViewModel() {
     var country: String = "Canada"
     var city: String = "Burnaby"
     var dateEpoch: Long = 0
+    var category: String = ""
 
     /**
      * Get current datetime epoch in seconds.

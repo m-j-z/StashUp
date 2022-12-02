@@ -92,6 +92,7 @@ class TransactionsRepository(tUid: String) {
                         transactionUid = snapshot.child("transactionUid").value.toString()
                         transactionName = snapshot.child("transactionName").value.toString()
                         cost = snapshot.child("cost").value.toString().toDouble()
+                        category = snapshot.child("category").value.toString()
                         isShared = snapshot.child("shared").value.toString().toBoolean()
                         ownerUid = snapshot.child("ownerUid").value.toString()
                         payerUid = snapshot.child("payerUid").value.toString()
@@ -124,6 +125,7 @@ class TransactionsRepository(tUid: String) {
                         transactionUid = snapshot.child("transactionUid").value.toString()
                         transactionName = snapshot.child("transactionName").value.toString()
                         cost = snapshot.child("cost").value.toString().toDouble()
+                        category = snapshot.child("category").value.toString()
                         isShared = snapshot.child("shared").value.toString().toBoolean()
                         ownerUid = snapshot.child("ownerUid").value.toString()
                         payerUid = snapshot.child("payerUid").value.toString()
@@ -308,6 +310,7 @@ class TransactionsRepository(tUid: String) {
                     val transaction = Transaction().apply {
                         transactionName = snapshot.child("transactionName").value.toString()
                         cost = snapshot.child("cost").value.toString().toDouble()
+                        category = snapshot.child("category").value.toString()
                         isShared = snapshot.child("shared").value.toString().toBoolean()
                         ownerUid = user.uid
                         payerUid = snapshot.child("payerUid").value.toString()
