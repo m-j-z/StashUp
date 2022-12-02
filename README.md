@@ -9,20 +9,27 @@
 <details>
   <summary>Team Effort Breakdown</summary>
   
-  ### Scott Luu
-  ```
+  <h3>Scott Luu</h3>
+  <pre>
   TBD
-  ```
+  </pre>
   
-  ### Tejeshwar Singh Multani
-  ```
+  <h3>Tejeshwar Singh Multani</h3>
+  <pre>
   TBD
-  ```
+  </pre>
   
-  ### Michael Zhu
-  ```
-  TBD
-  ```
+  <h3>Michael Zhu</h3>
+  <pre>
+  Implemented login, register, and forgot password methods that interacts with Firebase Authentication with MVVM architecture
+  Implemented methods that allows for profile changes that updates Firebase Authentication
+  Implemented a way to change currency type
+  Implemented methods that used a JSON library to get all countries and cities
+  Implemented methods that create transactions
+  Implemented methods that stores transaction data to and retrieves transaction data from Firebase database with MVVM architecture
+  Implemented methods that generates and reads QR codes that can retrieve transaction data from Firebase database
+  Implemented a custom BaseAdapter that displays transactions in a ListView
+  </pre>
   
 </details>
 
