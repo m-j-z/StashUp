@@ -61,6 +61,10 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
      * Initialize views in layouts.
      */
     private fun initializeViewsInLayout() {
+        // Populate spinner.
+        val adapter = ArrayAdapter.createFromResource(requireActivity(), R.array.expense_categories, R.layout.spinner_layout)
+        binding.spinner.adapter = adapter
+
         // Set onClickListeners.
         binding.sharedCb.setOnCheckedChangeListener(this)
         binding.setLocationCv.setOnClickListener(this)
@@ -83,10 +87,23 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
         if (this::transaction.isInitialized) {
             transactionsViewModel.transactionName = transaction.transactionName
             transactionsViewModel.cost = transaction.cost
+            transactionsViewModel.category = transaction.category
             transactionsViewModel.city = transaction.city
             transactionsViewModel.country = transaction.country
             transactionsViewModel.isShared = transaction.isShared
             transactionsViewModel.creatorPaid = transaction.ownerUid == transaction.payerUid
+
+            if (transaction.ownerUid != transaction.payerUid) {
+                binding.nameEt.isEnabled = false
+                binding.costEt.isEnabled = false
+                binding.spinner.isEnabled = false
+                binding.setLocationCv.isClickable = false
+                binding.sharedCb.isClickable = false
+                binding.payCb.isClickable = false
+
+                binding.discardBtn.visibility = Button.GONE
+                binding.saveBtn.visibility = Button.GONE
+            }
         }
 
         // Load data.
@@ -264,6 +281,7 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
         val transaction = Transaction().apply {
             transactionName = binding.nameEt.text.toString().trim()
             cost = binding.costEt.text.toString().trim().toDouble()
+            category = binding.spinner.selectedItem.toString()
             isShared = binding.sharedCb.isChecked
             ownerUid = transactionsViewModel.uid
             payerUid = payUid
@@ -278,7 +296,9 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
             transaction.transactionUid = this.transaction.transactionUid
             transaction.people = this.transaction.people
             transaction.parentUid = this.transaction.parentUid
+            transaction.payerUid = this.transaction.payerUid
             transactionsViewModel.updateEntry(this.transaction.transactionUid, transaction)
+            findNavController().popBackStack()
         } else { // Else add as new transaction.
             transactionsViewModel.addEntry(transaction)
         }
