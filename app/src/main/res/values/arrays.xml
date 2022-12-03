@@ -1,12 +1,15 @@
 <resources>
-    <!-- Reply Preference -->
-    <string-array name="reply_entries">
-        <item>Reply</item>
-        <item>Reply to all</item>
-    </string-array>
-
-    <string-array name="reply_values">
-        <item>reply</item>
-        <item>reply_all</item>
+    <string-array name="expense_categories">
+        <item>Housing Fees</item>
+        <item>Gas</item>
+        <item>Parking Fees</item>
+        <item>Groceries</item>
+        <item>Restaurants</item>
+        <item>Games</item>
+        <item>Bars</item>
+        <item>Movies</item>
+        <item>Gift/Donations</item>
+        <item>Other Entertainment Fees</item>
+        <item>Other Fees</item>
     </string-array>
 </resources>

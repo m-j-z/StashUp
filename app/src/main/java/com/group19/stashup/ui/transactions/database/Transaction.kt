@@ -14,8 +14,10 @@ data class Transaction(
     var country: String = "",
     var dateEpoch: Long = 0,
     var people: ArrayList<String>,
-    var parentUid: String = ""
+    var parentUid: String = "",
+    var category: String = ""
 ) : Parcelable {
+
     constructor() : this(people = arrayListOf())
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {

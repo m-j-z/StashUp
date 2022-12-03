@@ -92,6 +92,7 @@ class TransactionsRepository(tUid: String) {
                         transactionUid = snapshot.child("transactionUid").value.toString()
                         transactionName = snapshot.child("transactionName").value.toString()
                         cost = snapshot.child("cost").value.toString().toDouble()
+                        category = snapshot.child("category").value.toString()
                         isShared = snapshot.child("shared").value.toString().toBoolean()
                         ownerUid = snapshot.child("ownerUid").value.toString()
                         payerUid = snapshot.child("payerUid").value.toString()
@@ -124,6 +125,7 @@ class TransactionsRepository(tUid: String) {
                         transactionUid = snapshot.child("transactionUid").value.toString()
                         transactionName = snapshot.child("transactionName").value.toString()
                         cost = snapshot.child("cost").value.toString().toDouble()
+                        category = snapshot.child("category").value.toString()
                         isShared = snapshot.child("shared").value.toString().toBoolean()
                         ownerUid = snapshot.child("ownerUid").value.toString()
                         payerUid = snapshot.child("payerUid").value.toString()
@@ -308,6 +310,7 @@ class TransactionsRepository(tUid: String) {
                     val transaction = Transaction().apply {
                         transactionName = snapshot.child("transactionName").value.toString()
                         cost = snapshot.child("cost").value.toString().toDouble()
+                        category = snapshot.child("category").value.toString()
                         isShared = snapshot.child("shared").value.toString().toBoolean()
                         ownerUid = user.uid
                         payerUid = snapshot.child("payerUid").value.toString()
@@ -350,6 +353,25 @@ class TransactionsRepository(tUid: String) {
     fun updateEntry(tUid: String, transaction: Transaction) {
         CoroutineScope(IO).launch {
             database.child(tUid).setValue(transaction)
+            val valueEventListener = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (!snapshot.exists()) return
+
+                    snapshot.children.forEach {
+                        it.ref.child("transactionName").setValue(transaction.transactionName)
+                        it.ref.child("cost").setValue(transaction.cost)
+                        it.ref.child("city").setValue(transaction.city)
+                        it.ref.child("country").setValue(transaction.country)
+                        it.ref.child("shared").setValue(transaction.isShared)
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.d("ValueEventListener", error.message)
+                }
+
+            }
+            database.orderByChild("parentUid").equalTo(tUid).addListenerForSingleValueEvent(valueEventListener)
         }
     }
 
