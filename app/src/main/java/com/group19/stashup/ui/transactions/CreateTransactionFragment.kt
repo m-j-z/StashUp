@@ -29,6 +29,7 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
     private lateinit var dialog: AlertDialog
     private lateinit var currentList: ArrayList<String>
     private lateinit var listAdapter: ArrayAdapter<String>
+    private lateinit var spinnerAdapter: ArrayAdapter<CharSequence>
 
     private lateinit var transaction: Transaction
 
@@ -62,8 +63,8 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
      */
     private fun initializeViewsInLayout() {
         // Populate spinner.
-        val adapter = ArrayAdapter.createFromResource(requireActivity(), R.array.expense_categories, R.layout.spinner_layout)
-        binding.spinner.adapter = adapter
+        spinnerAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.expense_categories, R.layout.spinner_layout)
+        binding.spinner.adapter = spinnerAdapter
 
         // Set onClickListeners.
         binding.sharedCb.setOnCheckedChangeListener(this)
@@ -109,6 +110,7 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
         // Load data.
         binding.nameEt.setText(transactionsViewModel.transactionName)
         binding.costEt.setText(transactionsViewModel.cost.toString())
+        binding.spinner.setSelection(spinnerAdapter.getPosition(transactionsViewModel.category))
         val text = "${transactionsViewModel.city}, ${transactionsViewModel.country}"
         binding.setLocationTv.text = text
         binding.sharedCb.isChecked = transactionsViewModel.isShared
