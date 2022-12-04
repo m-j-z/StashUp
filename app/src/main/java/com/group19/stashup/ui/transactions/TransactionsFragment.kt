@@ -6,18 +6,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import android.widget.ListView
 import android.widget.ProgressBar
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import com.group19.stashup.R
 import com.group19.stashup.databinding.FragmentTransactionsBinding
 import com.group19.stashup.ui.transactions.database.Transaction
-import com.group19.stashup.ui.transactions.database.TransactionListViewAdapter
+import com.group19.stashup.ui.transactions.database.TransactionRecyclerViewAdapter
 import com.group19.stashup.ui.transactions.database.TransactionsViewModel
 
 class TransactionFragment : Fragment(), View.OnClickListener {
@@ -56,6 +58,7 @@ class TransactionFragment : Fragment(), View.OnClickListener {
     private lateinit var navController: NavController
 
     private lateinit var transactionsViewModel: TransactionsViewModel
+    private lateinit var recycleAdapter: TransactionRecyclerViewAdapter
 
     /**
      * To switch to next fragment...
@@ -104,8 +107,19 @@ class TransactionFragment : Fragment(), View.OnClickListener {
      */
     private fun initializeListSearchView() {
         // Display progress bar.
-        binding.listView.visibility = ListView.GONE
+        binding.recyclerView.visibility = RecyclerView.GONE
         binding.progressBar.visibility = ProgressBar.VISIBLE
+
+        // Create layout for RecyclerView and listener for each item inside the RecyclerView
+        binding.recyclerView.addItemDecoration(DividerItemDecoration(binding.recyclerView.context, LinearLayoutManager.VERTICAL))
+        binding.recyclerView.layoutManager = LinearLayoutManager(requireActivity())
+        val listener = object : TransactionRecyclerViewAdapter.ItemClickListener {
+            override fun onItemClick(view: View, position: Int) {
+                val item = recycleAdapter.getItem(position)
+                val bundle = bundleOf("transaction" to item)
+                navController.navigate(R.id.action_nav_transactions_to_viewTransactionFragment, bundle)
+            }
+        }
 
         // Set observer for transaction list.
         transactionsViewModel.listUpdated.observe(viewLifecycleOwner) {
@@ -114,7 +128,7 @@ class TransactionFragment : Fragment(), View.OnClickListener {
             // If list is updated.
             // Remove progress bar.
             binding.progressBar.visibility = ProgressBar.GONE
-            binding.listView.visibility = ProgressBar.VISIBLE
+            binding.recyclerView.visibility = RecyclerView.VISIBLE
 
             // Add data to transaction list.
             val transactionList: ArrayList<Transaction> = ArrayList()
@@ -123,15 +137,9 @@ class TransactionFragment : Fragment(), View.OnClickListener {
             }
 
             // Create new adapter and set list view adapter to display data.
-            val listAdapter = TransactionListViewAdapter(transactionList, requireActivity())
-            binding.listView.adapter = listAdapter
-        }
-
-        // On click of list view item, start ViewTransactionFragment.
-        binding.listView.setOnItemClickListener { _, _, position, _ ->
-            val item = binding.listView.adapter.getItem(position)
-            val bundle = bundleOf("transaction" to item)
-            navController.navigate(R.id.action_nav_transactions_to_viewTransactionFragment, bundle)
+            recycleAdapter = TransactionRecyclerViewAdapter(transactionList, requireActivity())
+            recycleAdapter.setOnClickListener(listener)
+            binding.recyclerView.adapter = recycleAdapter
         }
     }
 
