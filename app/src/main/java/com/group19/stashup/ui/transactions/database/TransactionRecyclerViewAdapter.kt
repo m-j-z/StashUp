@@ -49,7 +49,7 @@ class TransactionRecyclerViewAdapter(
 
         // Set cost per person.
         var cost = "-$currencySymbol ${String.format("%.2f", data.cost)}"
-        if (data.ownerUid == data.payerUid) {
+        if (data.ownerUid == data.payerUid && data.isShared) {
             holder.cost.setTextColor(context.getColor(R.color.green))
             cost = "+$currencySymbol ${String.format("%.2f", data.cost)}"
         }

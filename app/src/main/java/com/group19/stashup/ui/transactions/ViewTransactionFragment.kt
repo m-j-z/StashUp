@@ -76,20 +76,21 @@ class ViewTransactionFragment : Fragment(), View.OnClickListener {
         binding.totalCostTv.text = cost
 
         // Get number of people.
-        var numOfPeople = transaction.people.size
-        if (numOfPeople == 0) {
-            numOfPeople = 1
-        }
+        val numOfPeople = transaction.people.size
 
         // Set pay/receive.
         var yourCost =
             "-$currencySymbol ${String.format("%.2f", transaction.cost / numOfPeople)}"
-        if (transaction.ownerUid == transaction.payerUid) {
+        if (transaction.ownerUid == transaction.payerUid && transaction.isShared) {
             binding.payReceiveTv.setTextColor(requireActivity().getColor(R.color.green))
+            var receive = transaction.cost
+            if (numOfPeople > 1) {
+                receive -= transaction.cost / numOfPeople
+            }
             yourCost = "+$currencySymbol ${
                 String.format(
                     "%.2f",
-                    transaction.cost - (transaction.cost / numOfPeople)
+                    receive
                 )
             }"
         }
