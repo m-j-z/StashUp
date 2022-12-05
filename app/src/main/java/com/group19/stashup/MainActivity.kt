@@ -44,34 +44,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        setSupportActionBar(binding.appBarMain.toolbar)
-
-        val drawerLayout: DrawerLayout = binding.drawerLayout
-        val navView: NavigationView = binding.navView
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-
-        /**
-         * Add id below
-         * Add item to @menu/activity_main_drawer.xml.
-         * Add fragment to @navigation/mobile_navigation.xml
-         */
-        appBarConfiguration = AppBarConfiguration(
-            setOf(
-                R.id.nav_home, R.id.nav_transactions, R.id.nav_expenditure
-            ), drawerLayout
-        )
-        setupActionBarWithNavController(navController, appBarConfiguration)
-        navView.setupWithNavController(navController)
-
-        mainViewModel = ViewModelProvider(this)[MainViewModel::class.java]
-        loadOptionsMenu()
-
         auth = Firebase.auth
-
-        checkLoginStatus()
 
         // If not signed in, launch LoginActivity and prevent coming back to MainActivity.
         val checkUser = auth.currentUser
@@ -81,6 +54,32 @@ class MainActivity : AppCompatActivity() {
             finish()
         } else {
             user = checkUser
+            binding = ActivityMainBinding.inflate(layoutInflater)
+            setContentView(binding.root)
+
+            setSupportActionBar(binding.appBarMain.toolbar)
+
+            val drawerLayout: DrawerLayout = binding.drawerLayout
+            val navView: NavigationView = binding.navView
+            val navController = findNavController(R.id.nav_host_fragment_content_main)
+
+            /**
+             * Add id below
+             * Add item to @menu/activity_main_drawer.xml.
+             * Add fragment to @navigation/mobile_navigation.xml
+             */
+            appBarConfiguration = AppBarConfiguration(
+                setOf(
+                    R.id.nav_home, R.id.nav_transactions, R.id.nav_expenditure
+                ), drawerLayout
+            )
+            setupActionBarWithNavController(navController, appBarConfiguration)
+            navView.setupWithNavController(navController)
+
+            mainViewModel = ViewModelProvider(this)[MainViewModel::class.java]
+
+            checkLoginStatus()
+            loadOptionsMenu()
             initializeLayoutViews()
         }
     }
