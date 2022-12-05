@@ -78,6 +78,8 @@ class CountryExpenditureFragment : Fragment(), SearchView.OnQueryTextListener,
 
     @SuppressLint("InflateParams")
     private fun onSetLocationClicked() {
+        binding.linearLayout.visibility = LinearLayout.GONE
+        binding.progressBar.visibility = ProgressBar.VISIBLE
         // Observe until data is loaded.
         countryCityViewModel.isLoaded.observe(this) {
             if (!it) return@observe
@@ -103,6 +105,7 @@ class CountryExpenditureFragment : Fragment(), SearchView.OnQueryTextListener,
 
             // set on item click listener for listview
             listView.setOnItemClickListener { _, _, position, _ ->
+                searchView.setQuery("", false)
                 // remove data if pressed
                 if (country.isNotEmpty() && city.isNotEmpty()) {
                     country = ""
@@ -121,18 +124,15 @@ class CountryExpenditureFragment : Fragment(), SearchView.OnQueryTextListener,
                     )
                     currentList = cityList
                     listView.adapter = listAdapter
-
                 } else { // else add to city.
                     city = item
-                    val text = "${city}, ${country}"
+                    val text = "${city}, $country"
                     binding.selectLocationTv.text = text
                     //Update city and country's transaction list
                     getSpending(city, country)
                     getDate(city)
                     dialog.cancel()
                 }
-
-
             }
 
             // Set view, create dialog, show dialog.
@@ -140,6 +140,8 @@ class CountryExpenditureFragment : Fragment(), SearchView.OnQueryTextListener,
             dialog = builder.create()
             dialog.show()
 
+            binding.progressBar.visibility = ProgressBar.GONE
+            binding.linearLayout.visibility = LinearLayout.VISIBLE
         }
     }
 
@@ -172,8 +174,6 @@ class CountryExpenditureFragment : Fragment(), SearchView.OnQueryTextListener,
         }
 
         onSetLocationClicked()
-
-
     }
 
     private fun getDate(city: String){
@@ -338,7 +338,5 @@ private class categoryListAdapter(context: Context): BaseAdapter(){
         categoryCostTV.text = df.format(catPercentList[position])+"%"
 
         return categoryRow
-
     }
-
 }
