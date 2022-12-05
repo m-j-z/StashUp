@@ -10,6 +10,7 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.preference.PreferenceManager
 import com.google.firebase.database.*
 import com.group19.stashup.R
 import com.group19.stashup.databinding.FragmentCountryExpenditureBinding
@@ -19,6 +20,7 @@ import kotlinx.coroutines.launch
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
+import java.util.*
 
 private var catPercentList = ArrayList<Double>()
 private var catNameList = ArrayList<String>()
@@ -48,10 +50,12 @@ class CountryExpenditureFragment : Fragment(), SearchView.OnQueryTextListener,
     /**
      * Seasons: Jan-Apr; May-Aug; Sep-Dec
      * */
-    private var dateCheck: MutableMap<String?,Int?> = HashMap()
+    private var dateCheck: MutableMap<String?, Int?> = HashMap()
     private val sdf = SimpleDateFormat("MMM")
 
-    private var categoryList: MutableMap<String?,Double?> = LinkedHashMap()
+    private var categoryList: MutableMap<String?, Double?> = LinkedHashMap()
+
+    private lateinit var currencySymbol: String
 
     /**
      * To switch to next fragment...
@@ -68,6 +72,11 @@ class CountryExpenditureFragment : Fragment(), SearchView.OnQueryTextListener,
 
         countryCityViewModel = ViewModelProvider(this)[CountryCityViewModel::class.java]
         countryCityViewModel.loadData(requireActivity())
+
+        // Get currency code and symbol.
+        val preference = PreferenceManager.getDefaultSharedPreferences(requireActivity())
+        val currencyCode = preference.getString("currency", "CAD")
+        currencySymbol = Currency.getInstance(currencyCode).symbol
 
         binding.selectLocationCv.setOnClickListener(this)
 
@@ -155,6 +164,7 @@ class CountryExpenditureFragment : Fragment(), SearchView.OnQueryTextListener,
         }
         return false
     }
+
     override fun onQueryTextChange(newText: String?): Boolean {
         listAdapter.filter.filter(newText)
         return false
@@ -162,45 +172,39 @@ class CountryExpenditureFragment : Fragment(), SearchView.OnQueryTextListener,
 
 
     /**
-    * Update avg spending boxes after selecting city/country
-    * */
+     * Update avg spending boxes after selecting city/country
+     * */
     override fun onClick(v: View?) {
-
-        if(v == null) return
-
-        if(binding.cityAvgTv.text.isNotEmpty()){
-            binding.cityAvgTv.text = "0.0"
-            binding.countryAvgTv.text = "0.0"
-        }
+        if (v == null) return
 
         onSetLocationClicked()
     }
 
-    private fun getDate(city: String){
+    private fun getDate(city: String) {
 
         CoroutineScope(Dispatchers.IO).launch {
-            val valueEventListener= object: ValueEventListener{
+            val valueEventListener = object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     dateCheck.clear()
                     dateCheck["Jan-Apr"] = 0
                     dateCheck["May-Aug"] = 0
                     dateCheck["Sep-Dec"] = 0
-                    for (snapshot in dataSnapshot.children){
-                        if(snapshot.child("city").value.toString() == city) {
+                    for (snapshot in dataSnapshot.children) {
+                        if (snapshot.child("city").value.toString() == city) {
                             //dateList.add(snapshot.child("dateEpoch").value as Long * 1000)
                             when (sdf.format(snapshot.child("dateEpoch").value as Long * 1000)) {
 
-                                "Jan", "Feb", "Mar", "Apr" -> increment(dateCheck,"Jan-Apr")
-                                "May", "Jun", "Jul", "Aug" -> increment(dateCheck,"May-Aug")
-                                else -> increment(dateCheck,"Sep-Dec")
+                                "Jan", "Feb", "Mar", "Apr" -> increment(dateCheck, "Jan-Apr")
+                                "May", "Jun", "Jul", "Aug" -> increment(dateCheck, "May-Aug")
+                                else -> increment(dateCheck, "Sep-Dec")
                             }
                         }
 
                     }
-                    if(dateCheck["Jan-Apr"] != 0 ||
+                    if (dateCheck["Jan-Apr"] != 0 ||
                         dateCheck["May-Aug"] != 0 ||
-                        dateCheck["Sep-Dec"] != 0)
-                    {
+                        dateCheck["Sep-Dec"] != 0
+                    ) {
                         val maxSeason = dateCheck.maxBy { it.value!! }
                         val minSeason = dateCheck.minBy { it.value!! }
                         binding.seasonHighTv.text = maxSeason.key
@@ -218,27 +222,26 @@ class CountryExpenditureFragment : Fragment(), SearchView.OnQueryTextListener,
 
 
     fun increment(map: MutableMap<String?, Int?>, key: String) {
-        when (val count = map[key])
-        {
+        when (val count = map[key]) {
             null -> map[key] = 0
             else -> map[key] = count + 1
         }
     }
 
-    private fun getSpending(city: String, country: String){
+    private fun getSpending(city: String, country: String) {
 
         CoroutineScope(Dispatchers.IO).launch {
 
-            val valueEventListener= object: ValueEventListener{
+            val valueEventListener = object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     cityTransList.clear()
                     countryTransList.clear()
                     catNameList.clear()
                     catPercentList.clear()
 
-                    for (snapshot in dataSnapshot.children){
+                    for (snapshot in dataSnapshot.children) {
 
-                        if(snapshot.child("city").value.toString() == city){
+                        if (snapshot.child("city").value.toString() == city) {
                             val cost = snapshot.child("cost").value.toString().toDouble()
                             val category = snapshot.child("category").value.toString()
                             /**
@@ -247,31 +250,30 @@ class CountryExpenditureFragment : Fragment(), SearchView.OnQueryTextListener,
 
                             /**
                              * Combine Cost of different Categories*/
-                            if(categoryList.containsKey(category)) {
+                            if (categoryList.containsKey(category)) {
                                 val currCost = (categoryList[category]?.plus(cost))
                                 categoryList[category] = currCost
-                            }
-                            else{
+                            } else {
                                 categoryList[category] = cost
                             }
 
                         }
 
-                        if(snapshot.child("country").value.toString() == country)
+                        if (snapshot.child("country").value.toString() == country)
                             countryTransList.add(snapshot.child("cost").value.toString().toDouble())
 
                     }
 
 
                     //Update Textview if list is not empty
-                    if(cityTransList.size != 0){
+                    if (cityTransList.size != 0) {
 
                         df.roundingMode = RoundingMode.DOWN
 
                         val citySum = cityTransList.sum()
 
 
-                        for(item in categoryList){
+                        for (item in categoryList) {
                             catNameList.add(item.key.toString())
                             val v = (item.value?.div(citySum))?.times(100)
                             if (v != null) {
@@ -281,13 +283,18 @@ class CountryExpenditureFragment : Fragment(), SearchView.OnQueryTextListener,
 
                         val cityAvg = df.format(cityTransList.average())
                         val countryAvg = df.format(countryTransList.average())
-                        binding.cityAvgTv.text = cityAvg
-                        binding.countryAvgTv.text = countryAvg
+
+                        val cityCost = "$currencySymbol $cityAvg"
+                        val countryCost = "$currencySymbol $countryAvg"
+
+                        binding.cityAvgTv.text = cityCost
+                        binding.countryAvgTv.text = countryCost
 
                         /**Set up List of Categories % in UI*/
                         val adapter = this@CountryExpenditureFragment.context?.let {
                             categoryListAdapter(
-                                it.applicationContext)
+                                it.applicationContext
+                            )
                         }
                         binding.categoryList.adapter = adapter
                     }
@@ -299,13 +306,10 @@ class CountryExpenditureFragment : Fragment(), SearchView.OnQueryTextListener,
             reference.addValueEventListener(valueEventListener)
         }
 
-
     }
-
-
-
 }
-private class categoryListAdapter(context: Context): BaseAdapter(){
+
+private class categoryListAdapter(context: Context) : BaseAdapter() {
 
     private val mContext: Context
 
@@ -328,14 +332,14 @@ private class categoryListAdapter(context: Context): BaseAdapter(){
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val layoutInflater = LayoutInflater.from(mContext)
-        val categoryRow = layoutInflater.inflate(R.layout.category_row,parent,false)
+        val categoryRow = layoutInflater.inflate(R.layout.category_row, parent, false)
 
         val categoryCostTV = categoryRow.findViewById<TextView>(R.id.category_cost_tv)
         val categoryNameTV = categoryRow.findViewById<TextView>(R.id.category_name_tv)
 
         categoryNameTV.text = catNameList[position]
         df.roundingMode = RoundingMode.DOWN
-        categoryCostTV.text = df.format(catPercentList[position])+"%"
+        categoryCostTV.text = df.format(catPercentList[position]) + "%"
 
         return categoryRow
     }
