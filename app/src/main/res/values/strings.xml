@@ -70,5 +70,6 @@
     <string name="low">LOW</string>
     <string name="high">HIGH</string>
     <string name="avg_spending">Avg. Spending</string>
+    <string name="no_balance">$0.00</string>
 
 </resources>
