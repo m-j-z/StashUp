@@ -20,6 +20,7 @@ import com.group19.stashup.ui.transactions.database.TransactionRecyclerViewAdapt
 import com.group19.stashup.ui.transactions.database.TransactionsViewModel
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.math.abs
 
 
 class HomeFragment : Fragment() {
@@ -35,7 +36,6 @@ class HomeFragment : Fragment() {
     private lateinit var navController: NavController
     private lateinit var recycleAdapter: TransactionRecyclerViewAdapter
     private lateinit var currencySymbol: String
-    private var sum = 0.0
 
     var isLoaded: MutableLiveData<Boolean> = MutableLiveData(false)
     var homeList: ArrayList<String> = ArrayList()
@@ -60,8 +60,6 @@ class HomeFragment : Fragment() {
         val currencyCode = preference.getString("currency", "CAD")
         currencySymbol = Currency.getInstance(currencyCode).symbol
 
-        binding.balancetv.text = sum.toString()
-
         // Create layout for RecyclerView and listener for each item inside the RecyclerView
         binding.recyclerView.addItemDecoration(DividerItemDecoration(binding.recyclerView.context, LinearLayoutManager.VERTICAL))
         binding.recyclerView.layoutManager = LinearLayoutManager(requireActivity())
@@ -76,19 +74,30 @@ class HomeFragment : Fragment() {
         transactionsVM = ViewModelProvider(this)[TransactionsViewModel::class.java]
         transactionsVM.listUpdated.observe(viewLifecycleOwner) {
             if (!it) return@observe
+
+            var sum = 0.0
             val transactionList: ArrayList<Transaction> = ArrayList()
             transactionsVM.transactionList.forEach { item ->
                 transactionList.add(item)
-                sum += item.cost / item.people.size
+                if (item.ownerUid == item.payerUid && item.isShared) {
+                    sum += item.cost / item.people.size
+                } else {
+                    sum -= item.cost / item.people.size
+                }
             }
 
-            val sumString = "$currencySymbol $sum"
-            binding.balancetv.text = sumString
+            var balance = "-$currencySymbol ${String.format("%.2f", abs(sum))}"
+            if (sum >= 0) {
+                binding.balancetv.setTextColor(requireActivity().getColor(R.color.green))
+                balance = "+$currencySymbol ${String.format("%.2f", abs(sum))}"
+            }
+            binding.balancetv.text = balance
 
             recycleAdapter = TransactionRecyclerViewAdapter(transactionList, requireActivity())
             recycleAdapter.setOnClickListener(listener)
             binding.recyclerView.adapter = recycleAdapter
         }
+
         return binding.root
     }
 
