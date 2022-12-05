@@ -4,18 +4,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ListView
-import android.widget.TextView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
-import com.google.android.gms.common.internal.Objects.ToStringHelper
 import com.group19.stashup.R
 import com.group19.stashup.databinding.FragmentHomeBinding
-import com.group19.stashup.ui.transactions.database.*
-import org.w3c.dom.Text
+import com.group19.stashup.ui.transactions.database.Transaction
+import com.group19.stashup.ui.transactions.database.TransactionListViewAdapter
+import com.group19.stashup.ui.transactions.database.TransactionsViewModel
 
 
 class HomeFragment : Fragment() {
@@ -23,27 +21,15 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
 
 
-
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
-    private lateinit var transactionListView: ListView
     private lateinit var navc: NavController
-    private lateinit var textView: Text
 
-
-    private lateinit var repository: TransactionsRepository
     private lateinit var transactionsVM: TransactionsViewModel
-    private lateinit var transactionsbalance: Transaction
-    private lateinit var factory: TransactionViewModelFactory
-    private lateinit var arrayList: ArrayList<com.google.firebase.database.Transaction>
-    private lateinit var arrayAdapter: TransactionListViewAdapter
-    //private var sum=800.0
-    private var sum=0.0
-
+    private var sum = 0.0
 
     var isLoaded: MutableLiveData<Boolean> = MutableLiveData(false)
-    private var homeListv: ArrayList<TransactionsViewModel> = ArrayList()
     var homeList: ArrayList<String> = ArrayList()
 
 
@@ -70,83 +56,30 @@ class HomeFragment : Fragment() {
             val transactionList: ArrayList<Transaction> = ArrayList()
             transactionsVM.transactionList.forEach { item ->
                 transactionList.add(item)
+                sum += item.cost / item.people.size
+            }
+            binding.balancetv.text = sum.toString()
 
-                sum = (transactionsVM.cost/transactionsVM.peopleList.size)
-
-              //  sum += (transactionsVM.cost/transactionsVM.peopleList.size)
-
-
-
-
-
-//                val listAdapter = TransactionListViewAdapter(transactionList, requireActivity())
-//                binding.balancetv.text = getText(sum)
+            val listAdapter = TransactionListViewAdapter(transactionList, requireActivity())
+            binding.lv.adapter = listAdapter
 
 
-// WALLET BALANCE
-//                val people:ArrayList<Transaction> = ArrayList()
-//                transactionsbalance.people.forEach{item->
-//                   transactionList.sumOf { cost/people.size }
-//                    sum= cost/ people.size }
-//
-//                }
-//
-//                sum = transactionList.sumOf { cost / people.size }
-//
-//
-//                for (item in transactionList) {
-//
-//                    sum = cost / people.size
-//                }
-//                sum = 800 + pay_recieve
-//
-//
-//
-//
-//                println(sum)
-
-
-//            val listAdapterw = TransactionListViewAdapter(transactionsbalance, requireActivity())
-//            binding.balancetv.findViewById<TextView>(R.id.balancetv)
-
-
-                // On click of list view item, start ViewTransactionFragment.
-//        binding.balancetv.setOnItemClickListener { _, _, position, _ ->
-//            val item = binding.lv.adapter.getItem(position)
-//            val bundle = bundleOf("transaction" to item)
-                //  navc.navigate(R.id.action_nav_transactions_to_viewTransactionFragment, bundle)
-// Create new adapter and set list view adapter to display data.
-
-
-//                val Adapter = TransactionListViewAdapter(transactionList, requireActivity())
-//                binding.balancetv.adapter = Adapter
-
-                // Create new adapter and set list view adapter to display data.
-                val listAdapter = TransactionListViewAdapter(transactionList, requireActivity())
-                binding.lv.adapter = listAdapter
-
-
-                // On click of list view item, start ViewTransactionFragment.
-                binding.lv.setOnItemClickListener { _, _, position, _ ->
-                    val item = binding.lv.adapter.getItem(position)
-                    val bundle = bundleOf("transaction" to item)
-                    //  navc.navigate(R.id.action_nav_transactions_to_viewTransactionFragment, bundle)
-                }
+            // On click of list view item, start ViewTransactionFragment.
+            binding.lv.setOnItemClickListener { _, _, position, _ ->
+                val item = binding.lv.adapter.getItem(position)
+                val bundle = bundleOf("transaction" to item)
+                navc.navigate(R.id.action_nav_transactions_to_viewTransactionFragment, bundle)
             }
         }
-
-
-
-            return binding.root
-        }
-
-
-
-        override fun onDestroyView() {
-            super.onDestroyView()
-            _binding = null
-        }
+        return binding.root
     }
+
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}
 
 
 //    fun main(args: Transaction) {
