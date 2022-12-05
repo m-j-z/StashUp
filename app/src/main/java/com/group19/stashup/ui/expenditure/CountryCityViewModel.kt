@@ -42,8 +42,8 @@ class CountryCityViewModel : ViewModel() {
      * Loads all cities from [country] into [cityList].
      */
     fun getCities(country: String): ArrayList<String> {
-        if (cityList.isNotEmpty()) return cityList
-
+        //if (cityList.isNotEmpty()) return cityList
+        if (cityList.isNotEmpty()) cityList.clear()
         countryCityList.forEach {
             if (it.countryName == country) {
                 it.cityName.forEach { city ->
