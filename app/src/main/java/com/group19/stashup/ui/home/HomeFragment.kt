@@ -9,11 +9,17 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.group19.stashup.R
 import com.group19.stashup.databinding.FragmentHomeBinding
 import com.group19.stashup.ui.transactions.database.Transaction
-import com.group19.stashup.ui.transactions.database.TransactionListViewAdapter
+import com.group19.stashup.ui.transactions.database.TransactionRecyclerViewAdapter
 import com.group19.stashup.ui.transactions.database.TransactionsViewModel
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class HomeFragment : Fragment() {
@@ -24,9 +30,11 @@ class HomeFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
-    private lateinit var navc: NavController
 
     private lateinit var transactionsVM: TransactionsViewModel
+    private lateinit var navController: NavController
+    private lateinit var recycleAdapter: TransactionRecyclerViewAdapter
+    private lateinit var currencySymbol: String
     private var sum = 0.0
 
     var isLoaded: MutableLiveData<Boolean> = MutableLiveData(false)
@@ -46,9 +54,24 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        navController = findNavController()
+
+        val preference = PreferenceManager.getDefaultSharedPreferences(requireActivity())
+        val currencyCode = preference.getString("currency", "CAD")
+        currencySymbol = Currency.getInstance(currencyCode).symbol
 
         binding.balancetv.text = sum.toString()
 
+        // Create layout for RecyclerView and listener for each item inside the RecyclerView
+        binding.recyclerView.addItemDecoration(DividerItemDecoration(binding.recyclerView.context, LinearLayoutManager.VERTICAL))
+        binding.recyclerView.layoutManager = LinearLayoutManager(requireActivity())
+        val listener = object : TransactionRecyclerViewAdapter.ItemClickListener {
+            override fun onItemClick(view: View, position: Int) {
+                val item = recycleAdapter.getItem(position)
+                val bundle = bundleOf("transaction" to item)
+                navController.navigate(R.id.action_nav_home_to_viewTransactionFragment, bundle)
+            }
+        }
 
         transactionsVM = ViewModelProvider(this)[TransactionsViewModel::class.java]
         transactionsVM.listUpdated.observe(viewLifecycleOwner) {
@@ -59,18 +82,12 @@ class HomeFragment : Fragment() {
                 sum += item.cost / item.people.size
             }
 
-            binding.balancetv.text = sum.toString()
+            val sumString = "$currencySymbol $sum"
+            binding.balancetv.text = sumString
 
-            val listAdapter = TransactionListViewAdapter(transactionList, requireActivity())
-            binding.lv.adapter = listAdapter
-
-
-            // On click of list view item, start ViewTransactionFragment.
-            binding.lv.setOnItemClickListener { _, _, position, _ ->
-                val item = binding.lv.adapter.getItem(position)
-                val bundle = bundleOf("transaction" to item)
-                navc.navigate(R.id.action_nav_transactions_to_viewTransactionFragment, bundle)
-            }
+            recycleAdapter = TransactionRecyclerViewAdapter(transactionList, requireActivity())
+            recycleAdapter.setOnClickListener(listener)
+            binding.recyclerView.adapter = recycleAdapter
         }
         return binding.root
     }
@@ -81,20 +98,5 @@ class HomeFragment : Fragment() {
         _binding = null
     }
 }
-
-
-//    fun main(args: Transaction) {
-//
-//         val transactionsList: ArrayList<Transaction> = ArrayList()
-//
-//
-//        for (i in transactionsList) {
-//            sum += cost
-//            println(i)
-//
-//        }
-//        return textView : sum
-//
-//    }
 
 
