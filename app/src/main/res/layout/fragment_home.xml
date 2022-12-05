@@ -29,7 +29,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
-                android:text=""
+                android:text="@string/no_balance"
+                android:textColor="@color/red"
                 android:textSize="32sp" />
 
         </LinearLayout>
@@ -60,11 +61,11 @@
                 android:layout_marginHorizontal="16dp" />
 
             <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_margin="8dp"
-                android:layout_weight="1"
-                android:id="@+id/recycler_view"/>
+                android:layout_weight="1" />
 
         </LinearLayout>
 
