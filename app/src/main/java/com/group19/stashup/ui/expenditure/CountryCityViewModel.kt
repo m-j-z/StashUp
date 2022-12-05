@@ -22,6 +22,8 @@ class CountryCityViewModel : ViewModel() {
      */
     fun loadData(context: Context) {
         CoroutineScope(Dispatchers.IO).launch {
+            if (countryList.isNotEmpty()) return@launch
+
             val countryJson = context.resources.openRawResource(R.raw.country_city).reader()
             JsonReader(countryJson).use {
                 it.beginArray {
@@ -32,6 +34,8 @@ class CountryCityViewModel : ViewModel() {
                 }
             }
             countryCityList.forEach {
+                if (countryList.contains(it.countryName)) return@forEach
+
                 countryList.add(it.countryName)
             }
             isLoaded.postValue(true)
@@ -42,14 +46,18 @@ class CountryCityViewModel : ViewModel() {
      * Loads all cities from [country] into [cityList].
      */
     fun getCities(country: String): ArrayList<String> {
-        //if (cityList.isNotEmpty()) return cityList
-        if (cityList.isNotEmpty()) cityList.clear()
-        countryCityList.forEach {
-            if (it.countryName == country) {
-                it.cityName.forEach { city ->
-                    cityList.add(city)
+        run breaking@{
+            if (cityList.isNotEmpty()) cityList.clear()
+
+            countryCityList.forEach {
+                if (it.countryName == country) {
+                    it.cityName.forEach cityLoop@ { city ->
+                        if (cityList.contains(city)) return@cityLoop
+
+                        cityList.add(city)
+                    }
+                    return@breaking
                 }
-                return@forEach
             }
         }
         return cityList
