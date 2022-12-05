@@ -58,6 +58,7 @@ class HomeFragment : Fragment() {
                 transactionList.add(item)
                 sum += item.cost / item.people.size
             }
+
             binding.balancetv.text = sum.toString()
 
             val listAdapter = TransactionListViewAdapter(transactionList, requireActivity())
