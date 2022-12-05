@@ -223,6 +223,7 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
 
             // set on item click listener for listview
             listView.setOnItemClickListener { _, _, position, _ ->
+                searchView.setQuery("", false)
                 // remove data if pressed
                 if (transactionsViewModel.country.isNotEmpty() && transactionsViewModel.city.isNotEmpty()) {
                     transactionsViewModel.country = ""
