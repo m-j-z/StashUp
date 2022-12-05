@@ -115,11 +115,6 @@ class CountryExpenditureFragment : Fragment(), SearchView.OnQueryTextListener,
             // set on item click listener for listview
             listView.setOnItemClickListener { _, _, position, _ ->
                 searchView.setQuery("", false)
-                // remove data if pressed
-                if (country.isNotEmpty() && city.isNotEmpty()) {
-                    country = ""
-                    city = ""
-                }
 
                 // Get item at position.
                 val item = listView.adapter.getItem(position).toString()
@@ -177,7 +172,11 @@ class CountryExpenditureFragment : Fragment(), SearchView.OnQueryTextListener,
     override fun onClick(v: View?) {
         if (v == null) return
 
-        onSetLocationClicked()
+        if (v.id == R.id.select_location_cv) {
+            country = ""
+            city = ""
+            onSetLocationClicked()
+        }
     }
 
     private fun getDate(city: String) {

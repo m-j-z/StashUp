@@ -198,6 +198,8 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
      */
     @SuppressLint("InflateParams")
     private fun onSetLocationClicked() {
+        transactionsViewModel.country = ""
+        transactionsViewModel.city = ""
         // Observe until data is loaded.
         countryCityViewModel.isLoaded.observe(this) {
             if (!it) return@observe
@@ -224,12 +226,6 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
             // set on item click listener for listview
             listView.setOnItemClickListener { _, _, position, _ ->
                 searchView.setQuery("", false)
-                // remove data if pressed
-                if (transactionsViewModel.country.isNotEmpty() && transactionsViewModel.city.isNotEmpty()) {
-                    transactionsViewModel.country = ""
-                    transactionsViewModel.city = ""
-                }
-
                 // Get item at position.
                 val item = listView.adapter.getItem(position).toString()
 
@@ -276,7 +272,7 @@ class CreateTransactionFragment : Fragment(), View.OnClickListener,
     private fun onSaveClicked() {
         // Determine if creator of transaction is payer.
         var payUid = ""
-        if (binding.payCb.isChecked) {
+        if (binding.payCb.isChecked || !binding.sharedCb.isChecked) {
             payUid = transactionsViewModel.uid
         }
 
