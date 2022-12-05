@@ -30,6 +30,7 @@ class HomeFragment : Fragment() {
     private lateinit var transactionListView: ListView
     private lateinit var navc: NavController
     private lateinit var textView: Text
+    private lateinit var transactions : List<Transaction>
 
 
     private lateinit var repository: TransactionsRepository
@@ -61,23 +62,19 @@ class HomeFragment : Fragment() {
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
-        binding.balancetv.text = sum.toString()
-
-
         transactionsVM = ViewModelProvider(this)[TransactionsViewModel::class.java]
         transactionsVM.listUpdated.observe(viewLifecycleOwner) {
             if (!it) return@observe
             val transactionList: ArrayList<Transaction> = ArrayList()
             transactionsVM.transactionList.forEach { item ->
+              //  sum += (transactionsVM.cost / transactionsVM.peopleList.size)
                 transactionList.add(item)
 
-                sum = (transactionsVM.cost/transactionsVM.peopleList.size)
-
-              //  sum += (transactionsVM.cost/transactionsVM.peopleList.size)
+                  sum =  (transactionsbalance.cost/transactionsbalance.people.size)
 
 
 
-
+                binding.balancetv.text = sum.toString()
 
 //                val listAdapter = TransactionListViewAdapter(transactionList, requireActivity())
 //                binding.balancetv.text = getText(sum)
@@ -126,6 +123,7 @@ class HomeFragment : Fragment() {
                 binding.lv.adapter = listAdapter
 
 
+
                 // On click of list view item, start ViewTransactionFragment.
                 binding.lv.setOnItemClickListener { _, _, position, _ ->
                     val item = binding.lv.adapter.getItem(position)
@@ -137,16 +135,39 @@ class HomeFragment : Fragment() {
 
 
 
-            return binding.root
+        return binding.root
+    }
+
+    private fun updateDashboard(){
+        val data = transactions[id]
+
+        if (data.ownerUid == data.payerUid){
+
+
+        val totalAmount = transactions.map { it.cost }.sum()
+        val budgetAmount = transactions.filter { it.cost>0 }.map{it.cost}.sum()
+        val expenseAmount = totalAmount - budgetAmount
+
+       // cost = "+$currencySymbol ${String.format("%.2f", data.cost)}"
+
+        var budget=binding.budget
+        var expense=binding.expense
+
+
+        budget.text = "$ %.2f".format(budgetAmount)
+        expense.text = "$ %.2f".format(expenseAmount)
+
         }
-
-
+    }
 
         override fun onDestroyView() {
             super.onDestroyView()
             _binding = null
         }
-    }
+}
+
+
+
 
 
 //    fun main(args: Transaction) {
