@@ -1,8 +1,8 @@
 package com.group19.stashup.ui.expenditure
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
-import android.provider.ContactsContract.Data
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,10 +16,13 @@ import com.group19.stashup.databinding.FragmentCountryExpenditureBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.lang.String.format
-import java.lang.reflect.Type
 import java.math.RoundingMode
 import java.text.DecimalFormat
+import java.text.SimpleDateFormat
+
+private var catPercentList = ArrayList<Double>()
+private var catNameList = ArrayList<String>()
+val df = DecimalFormat("#.##")
 
 class CountryExpenditureFragment : Fragment(), SearchView.OnQueryTextListener,
     View.OnClickListener {
@@ -41,6 +44,14 @@ class CountryExpenditureFragment : Fragment(), SearchView.OnQueryTextListener,
 
     private var cityTransList: ArrayList<Double> = ArrayList()
     private var countryTransList: ArrayList<Double> = ArrayList()
+
+    /**
+     * Seasons: Jan-Apr; May-Aug; Sep-Dec
+     * */
+    private var dateCheck: MutableMap<String?,Int?> = HashMap()
+    private val sdf = SimpleDateFormat("MMM")
+
+    private var categoryList: MutableMap<String?,Double?> = LinkedHashMap()
 
     /**
      * To switch to next fragment...
@@ -117,6 +128,7 @@ class CountryExpenditureFragment : Fragment(), SearchView.OnQueryTextListener,
                     binding.selectLocationTv.text = text
                     //Update city and country's transaction list
                     getSpending(city, country)
+                    getDate(city)
                     dialog.cancel()
                 }
 
@@ -154,45 +166,49 @@ class CountryExpenditureFragment : Fragment(), SearchView.OnQueryTextListener,
 
         if(v == null) return
 
-        if(binding.cityAvgTv.text.isNotEmpty())
+        if(binding.cityAvgTv.text.isNotEmpty()){
             binding.cityAvgTv.text = "0.0"
             binding.countryAvgTv.text = "0.0"
+        }
+
         onSetLocationClicked()
+
+
     }
 
-
-
-    private fun getSpending(city: String, country: String){
+    private fun getDate(city: String){
 
         CoroutineScope(Dispatchers.IO).launch {
             val valueEventListener= object: ValueEventListener{
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    cityTransList.clear()
-                    countryTransList.clear()
+                    dateCheck.clear()
+                    dateCheck["Jan-Apr"] = 0
+                    dateCheck["May-Aug"] = 0
+                    dateCheck["Sep-Dec"] = 0
                     for (snapshot in dataSnapshot.children){
+                        if(snapshot.child("city").value.toString() == city) {
+                            //dateList.add(snapshot.child("dateEpoch").value as Long * 1000)
+                            when (sdf.format(snapshot.child("dateEpoch").value as Long * 1000)) {
 
-                        if(snapshot.child("city").value.toString() == city)
-                            cityTransList.add(snapshot.child("cost").value.toString().toDouble())
-
-
-                        if(snapshot.child("country").value.toString() == country)
-                            countryTransList.add(snapshot.child("cost").value.toString().toDouble())
-
+                                "Jan", "Feb", "Mar", "Apr" -> increment(dateCheck,"Jan-Apr")
+                                "May", "Jun", "Jul", "Aug" -> increment(dateCheck,"May-Aug")
+                                else -> increment(dateCheck,"Sep-Dec")
+                            }
+                        }
 
                     }
-                    //Update Textview if list is not empty
-                    if(cityTransList.size != 0){
-                        val df = DecimalFormat("#.##")
-                        df.roundingMode = RoundingMode.UP
-                        val cityAvg = df.format(cityTransList.average())
-                        val countryAvg = df.format(countryTransList.average())
-                        binding.cityAvgTv.text = cityAvg
-                        binding.countryAvgTv.text = countryAvg
+                    if(dateCheck["Jan-Apr"] != 0 ||
+                        dateCheck["May-Aug"] != 0 ||
+                        dateCheck["Sep-Dec"] != 0)
+                    {
+                        val maxSeason = dateCheck.maxBy { it.value!! }
+                        val minSeason = dateCheck.minBy { it.value!! }
+                        binding.seasonHighTv.text = maxSeason.key
+                        binding.seasonLowTv.text = minSeason.key
                     }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-
                 }
             }
             reference.addValueEventListener(valueEventListener)
@@ -201,5 +217,128 @@ class CountryExpenditureFragment : Fragment(), SearchView.OnQueryTextListener,
     }
 
 
+    fun increment(map: MutableMap<String?, Int?>, key: String) {
+        when (val count = map[key])
+        {
+            null -> map[key] = 0
+            else -> map[key] = count + 1
+        }
+    }
+
+    private fun getSpending(city: String, country: String){
+
+        CoroutineScope(Dispatchers.IO).launch {
+
+            val valueEventListener= object: ValueEventListener{
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    cityTransList.clear()
+                    countryTransList.clear()
+                    catNameList.clear()
+                    catPercentList.clear()
+
+                    for (snapshot in dataSnapshot.children){
+
+                        if(snapshot.child("city").value.toString() == city){
+                            val cost = snapshot.child("cost").value.toString().toDouble()
+                            val category = snapshot.child("category").value.toString()
+                            /**
+                             * Add costs of city to a list*/
+                            cityTransList.add(cost)
+
+                            /**
+                             * Combine Cost of different Categories*/
+                            if(categoryList.containsKey(category)) {
+                                val currCost = (categoryList[category]?.plus(cost))
+                                categoryList[category] = currCost
+                            }
+                            else{
+                                categoryList[category] = cost
+                            }
+
+                        }
+
+                        if(snapshot.child("country").value.toString() == country)
+                            countryTransList.add(snapshot.child("cost").value.toString().toDouble())
+
+                    }
+
+
+                    //Update Textview if list is not empty
+                    if(cityTransList.size != 0){
+
+                        df.roundingMode = RoundingMode.DOWN
+
+                        val citySum = cityTransList.sum()
+
+
+                        for(item in categoryList){
+                            catNameList.add(item.key.toString())
+                            val v = (item.value?.div(citySum))?.times(100)
+                            if (v != null) {
+                                catPercentList.add(v)
+                            }
+                        }
+
+                        val cityAvg = df.format(cityTransList.average())
+                        val countryAvg = df.format(countryTransList.average())
+                        binding.cityAvgTv.text = cityAvg
+                        binding.countryAvgTv.text = countryAvg
+
+                        /**Set up List of Categories % in UI*/
+                        val adapter = this@CountryExpenditureFragment.context?.let {
+                            categoryListAdapter(
+                                it.applicationContext)
+                        }
+                        binding.categoryList.adapter = adapter
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                }
+            }
+            reference.addValueEventListener(valueEventListener)
+        }
+
+
+    }
+
+
+
+}
+private class categoryListAdapter(context: Context): BaseAdapter(){
+
+    private val mContext: Context
+
+    init {
+        mContext = context
+        notifyDataSetChanged()
+    }
+
+    override fun getCount(): Int {
+        return catNameList.size
+    }
+
+    override fun getItem(position: Int): Any {
+        return "none"
+    }
+
+    override fun getItemId(position: Int): Long {
+        return position.toLong()
+    }
+
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+        val layoutInflater = LayoutInflater.from(mContext)
+        val categoryRow = layoutInflater.inflate(R.layout.category_row,parent,false)
+
+        val categoryCostTV = categoryRow.findViewById<TextView>(R.id.category_cost_tv)
+        val categoryNameTV = categoryRow.findViewById<TextView>(R.id.category_name_tv)
+
+        categoryNameTV.text = catNameList[position]
+        df.roundingMode = RoundingMode.DOWN
+        categoryCostTV.text = df.format(catPercentList[position])+"%"
+
+        return categoryRow
+
+    }
 
 }

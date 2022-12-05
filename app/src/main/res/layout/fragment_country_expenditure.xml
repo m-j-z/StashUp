@@ -145,7 +145,7 @@
                     android:id="@+id/season_low_tv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Dec"
+                    android:text="N/A"
                     android:textColor="@color/brick_red"
                     android:textAlignment="center"
                     android:textSize="25dp" />
@@ -182,16 +182,31 @@
                     android:id="@+id/season_high_tv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="May"
+                    android:text="N/A"
                     android:textColor="@color/dark_green"
                     android:textAlignment="center"
-                    android:textSize="25dp"
-                    />
+                    android:textSize="25dp" />
 
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="30dp"
+        app:cardCornerRadius="12dp">
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/category_list"/>
+
+
+    </com.google.android.material.card.MaterialCardView>
 
     <ProgressBar
         android:id="@+id/progress_bar"
