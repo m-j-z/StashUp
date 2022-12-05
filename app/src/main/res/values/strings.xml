@@ -64,5 +64,11 @@
     <string name="add_transaction_text">Add Transaction</string>
     <string name="qr_existing_tv">Scan QR code</string>
     <string name="category">Select expense category…</string>
+    <string name="city">CITY</string>
+    <string name="n_a">N/A</string>
+    <string name="country">COUNTRY</string>
+    <string name="low">LOW</string>
+    <string name="high">HIGH</string>
+    <string name="avg_spending">Avg. Spending</string>
 
 </resources>
