@@ -136,7 +136,7 @@ class TransactionFragment : Fragment(), View.OnClickListener {
                 transactionList.add(item)
             }
 
-            // Create new adapter and set list view adapter to display data.
+            // Create new adapter and set recycle view adapter to display data.
             recycleAdapter = TransactionRecyclerViewAdapter(transactionList, requireActivity())
             recycleAdapter.setOnClickListener(listener)
             binding.recyclerView.adapter = recycleAdapter
