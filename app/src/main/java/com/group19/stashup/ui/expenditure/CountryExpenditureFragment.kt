@@ -290,8 +290,11 @@ class CountryExpenditureFragment : Fragment(), SearchView.OnQueryTextListener,
                         val adapter = this@CountryExpenditureFragment.context?.let {
                             categoryListAdapter(
                                 it.applicationContext)
+
                         }
+                        adapter?.updateList()
                         binding.categoryList.adapter = adapter
+
                     }
                 }
 
@@ -313,7 +316,6 @@ private class categoryListAdapter(context: Context): BaseAdapter(){
 
     init {
         mContext = context
-        notifyDataSetChanged()
 
     }
 
@@ -327,6 +329,9 @@ private class categoryListAdapter(context: Context): BaseAdapter(){
 
     override fun getItemId(position: Int): Long {
         return position.toLong()
+    }
+    fun updateList(){
+        notifyDataSetChanged()
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
