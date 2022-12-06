@@ -76,15 +76,20 @@ class HomeFragment : Fragment() {
             if (!it) return@observe
 
             var sum = 0.0
+            var expense=0.0
             val transactionList: ArrayList<Transaction> = ArrayList()
             transactionsVM.transactionList.forEach { item ->
                 transactionList.add(item)
                 if (item.ownerUid == item.payerUid && item.isShared) {
                     sum += item.cost / item.people.size
+//                    sum += expense
                 } else {
-                    sum -= item.cost / item.people.size
+                    expense = item.cost / item.people.size
+                    sum-=expense
+
                 }
             }
+           var expenditure = "-$currencySymbol ${String.format("%.2f", abs(expense))}"
 
             var balance = "-$currencySymbol ${String.format("%.2f", abs(sum))}"
             if (sum >= 0) {
@@ -92,6 +97,8 @@ class HomeFragment : Fragment() {
                 balance = "+$currencySymbol ${String.format("%.2f", abs(sum))}"
             }
             binding.balancetv.text = balance
+
+            binding.expense.text= expenditure
 
             recycleAdapter = TransactionRecyclerViewAdapter(transactionList, requireActivity())
             recycleAdapter.setOnClickListener(listener)
