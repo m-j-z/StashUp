@@ -11,12 +11,17 @@
   
   <h3>Scott Luu</h3>
   <pre>
-  TBD
+  Data extraction from Firebase for:
+      City & Country’s Avg. Spending
+      Determine a city’s High vs. Low Season
+  A ListView with a custom BaseAdapter to displays % of transactions’ category
+  Utilize Michael’s Country/City Selection dropdown tool to get information of countries and cities for the above methods 
+
   </pre>
   
   <h3>Tejeshwar Singh Multani</h3>
   <pre>
-  TBD
+  Implemented the home display
   </pre>
   
   <h3>Michael Zhu</h3>
