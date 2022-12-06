@@ -13,11 +13,14 @@
   
   <h3>Scott Luu</h3>
   <pre>
-  Data extraction from Firebase for:
-      City & Country’s Avg. Spending
-      Determine a city’s High vs. Low Season
+  Brainstormed ideas+tasks and coordinated tasks among members
+  Implemented Expenditure page’s design and features,  including:
+    Data extraction from Firebase for:
+    City & Country’s Avg. Spending
+    Determine a city’s High vs. Low Season
   A ListView with a custom BaseAdapter to displays % of transactions’ category
   Utilize Michael’s Country/City Selection dropdown tool to get information of countries and cities for the above methods 
+
   </pre>
   
   <h3>Tejeshwar Singh Multani</h3>
@@ -31,18 +34,22 @@
   
   <h3>Michael Zhu</h3>
   <pre>
-  Implemented AuthViewModel, AuthViewModelFactory and AuthRepository that has login, register, and forgot password methods that interacts with Firebase Authentication with MVVM architecture
-  Implemented methods that allows for profile detail changes that updates Firebase Authentication
-  Implemented a way to change currency type using the Currency library
-  Implemented methods that used a JSON library to get all countries and cities from a JSON file
-  Implemented methods to create transactions
-  Implemented the transaction list on the Transaction page that displays all transactions a user owns
-  Implemented a feature that allows the user to have a more detailed look at a transaction
-  Implemented TransactionViewModel, TransactionViewModelFactory and TransactionRepository that has methods to store transaction data to and retrieves transaction data from Firebase database with MVVM architecture
-  Implemented a feature that generates and reads QR codes that can retrieve transaction data from Firebase database
-  Implemented a feature that allows the user to edit and update the edited data to Firebase
-  Implemented a custom Adapter that displays transactions in a RecyclerView
-  Implemented a custom BaseAdapter that displays persons in a ListView
+  Core components:
+    Created AuthViewModel, AuthViewModelFactory and AuthRepository that interacts with Firebase Authentication to verify/register users
+    Currency type changer using a Currency Library
+    Extract countries and cities data from a JSON file
+    Created Transaction ViewModel, TransactionViewModelFactory, and Transaction Repository with methods to store and retrieve data from Firebase with MVVM architecture
+    Custom adapter to display transactions in a RecyclerView
+    Custom adapter to display persons in a ListView
+  Authentication implementations such as:
+    Login and Register functionality
+    Forgot Password functionality
+    Profile update methods functionality
+  Transactions implementations such as:
+    Transaction creation
+    Transaction list which displays all transactions owned by or shared with the user
+    Feature to edit transaction details and save to Firebase
+    Feature to fetch transactions with QR codes or by an identifier
   </pre>
   
 </details>
