@@ -237,6 +237,7 @@ class CountryExpenditureFragment : Fragment(), SearchView.OnQueryTextListener,
                     countryTransList.clear()
                     catNameList.clear()
                     catPercentList.clear()
+                    categoryList.clear()
 
                     for (snapshot in dataSnapshot.children) {
 
@@ -295,6 +296,7 @@ class CountryExpenditureFragment : Fragment(), SearchView.OnQueryTextListener,
                                 it.applicationContext
                             )
                         }
+                        adapter?.updateList()
                         binding.categoryList.adapter = adapter
                     }
                 }
@@ -314,6 +316,9 @@ private class categoryListAdapter(context: Context) : BaseAdapter() {
 
     init {
         mContext = context
+    }
+
+    fun updateList() {
         notifyDataSetChanged()
     }
 
