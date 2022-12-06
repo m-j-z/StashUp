@@ -22,9 +22,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
-                android:text="@string/total_balance_header"
+                android:text="TOTAL WALLET BALANCE"
                 android:textStyle="bold"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                />
 
             <TextView
                 android:id="@+id/balancetv"
@@ -33,7 +34,8 @@
                 android:gravity="center_horizontal"
                 android:text="@string/no_balance"
                 android:textColor="@color/red"
-                android:textSize="32sp" />
+                android:textSize="32sp"
+                android:textStyle="bold"/>
 
         </LinearLayout>
 
@@ -56,12 +58,12 @@
             android:paddingBottom="12dp"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp">
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_weight="0.5"
-                android:gravity="center">
+<!--            <LinearLayout-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:orientation="vertical"-->
+<!--                android:layout_weight="0.5"-->
+<!--                android:gravity="center">-->
 <!--                <TextView-->
 <!--                    android:id="@+id/budget"-->
 <!--                    android:layout_width="wrap_content"-->
@@ -76,7 +78,7 @@
 <!--                    android:text="Budget"-->
 <!--                    android:textSize="17sp"-->
 <!--                    android:textAllCaps="true"/>-->
-            </LinearLayout>
+<!--            </LinearLayout>-->
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -84,6 +86,13 @@
                 android:layout_weight="0.5"
                 android:gravity="center"
                 android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Expense"
+                    android:textAllCaps="true"
+                    android:textSize="17sp" />
 
                 <TextView
                     android:id="@+id/expense"
@@ -94,12 +103,7 @@
                     android:textSize="32sp"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Expense"
-                    android:textAllCaps="true"
-                    android:textSize="17sp" />
+
             </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
