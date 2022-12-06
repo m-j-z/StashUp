@@ -22,6 +22,15 @@
   <h3>Tejeshwar Singh Multani</h3>
   <pre>
   Implemented the home display
+  Implemented the home page design
+  Implemented the transactions list in home page that displays all the transaction data the user has from the Firebase database
+  Implementation of total expenditure feature of all transactions
+  Made sure that full list of transactions is displayed on home page , thus also included a screen scroller to 
+	deliver great usability {this is the same as 2}
+  Making sure that all requirements of show and tells, final presentations are met, and what we are presenting  corrects depicts our app
+  Organizing weekly meetings and maintaining  efficient communication 
+
+
   </pre>
   
   <h3>Michael Zhu</h3>
