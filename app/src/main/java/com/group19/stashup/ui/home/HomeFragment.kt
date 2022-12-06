@@ -94,23 +94,15 @@ class HomeFragment : Fragment() {
 //                }
                 if (item.ownerUid == item.payerUid && item.isShared) {
                     sum += item.cost / item.people.size
-
-
-
-                   // expense -= item.cost / item.people.size
-
-//                    sum += expense
-                } else {
-                    expense = item.cost / item.people.size
-                  //  totalexpenses= expense + (item.cost / item.people.size)
-
-                    sum-=expense
-                    if(sum<0)
-                    {
+                    if(!item.creatorpaid){
                         totalexpenses += (item.cost / item.people.size)
 
                     }
-
+                }
+                else
+                {
+                    expense = item.cost / item.people.size
+                    sum-=expense
                 }
             }
            // totalexpenses=totalexpenses -sum
@@ -126,7 +118,7 @@ class HomeFragment : Fragment() {
             }
             binding.balancetv.text = balance
 
-            binding.expense.text= finalexpensiture
+           // binding.expense.text= finalexpensiture
 
             recycleAdapter = TransactionRecyclerViewAdapter(transactionList, requireActivity())
             recycleAdapter.setOnClickListener(listener)
