@@ -8,6 +8,7 @@ data class Transaction(
     var transactionName: String = "",
     var cost: Double = 0.0,
     var isShared: Boolean = false,
+    var creatorpaid: Boolean = false,
     var ownerUid: String = "",
     var payerUid: String = "",
     var city: String = "",
@@ -24,6 +25,7 @@ data class Transaction(
         parcel.writeString(transactionName)
         parcel.writeDouble(cost)
         parcel.writeByte(if (isShared) 1 else 0)
+        parcel.writeByte(if (creatorpaid) 1 else 0)
         parcel.writeString(ownerUid)
         parcel.writeString(payerUid)
         parcel.writeString(city)
