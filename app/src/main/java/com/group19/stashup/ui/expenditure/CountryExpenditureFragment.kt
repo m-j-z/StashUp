@@ -79,6 +79,7 @@ class CountryExpenditureFragment : Fragment(), SearchView.OnQueryTextListener,
     @SuppressLint("InflateParams")
     private fun onSetLocationClicked() {
         // Observe until data is loaded.
+
         countryCityViewModel.isLoaded.observe(this) {
             if (!it) return@observe
 
@@ -235,6 +236,7 @@ class CountryExpenditureFragment : Fragment(), SearchView.OnQueryTextListener,
                     countryTransList.clear()
                     catNameList.clear()
                     catPercentList.clear()
+                    categoryList.clear()
 
                     for (snapshot in dataSnapshot.children){
 
@@ -312,6 +314,7 @@ private class categoryListAdapter(context: Context): BaseAdapter(){
     init {
         mContext = context
         notifyDataSetChanged()
+
     }
 
     override fun getCount(): Int {
