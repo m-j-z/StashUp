@@ -82,18 +82,19 @@ class HomeFragment : Fragment() {
             transactionsVM.transactionList.forEach { item ->
                 transactionList.add(item)
 
-                if(item.ownerUid != item.payerUid && item.creatorpaid)
-                {
-                    totalexpenses += (item.cost / item.people.size)
-
-                }
-                else
-                {
-                    totalexpenses -= (item.cost / item.people.size)
-
-                }
+//                if(item.ownerUid != item.payerUid && item.creatorpaid)
+//                {
+//                    totalexpenses += (item.cost / item.people.size)
+//
+//                }
+//                else
+//                {
+//                    totalexpenses -= (item.cost / item.people.size)
+//
+//                }
                 if (item.ownerUid == item.payerUid && item.isShared) {
                     sum += item.cost / item.people.size
+
 
 
                    // expense -= item.cost / item.people.size
@@ -102,7 +103,13 @@ class HomeFragment : Fragment() {
                 } else {
                     expense = item.cost / item.people.size
                   //  totalexpenses= expense + (item.cost / item.people.size)
+
                     sum-=expense
+                    if(sum<0)
+                    {
+                        totalexpenses += (item.cost / item.people.size)
+
+                    }
 
                 }
             }
@@ -119,7 +126,7 @@ class HomeFragment : Fragment() {
             }
             binding.balancetv.text = balance
 
-          //  binding.expense.text= finalexpensiture
+            binding.expense.text= finalexpensiture
 
             recycleAdapter = TransactionRecyclerViewAdapter(transactionList, requireActivity())
             recycleAdapter.setOnClickListener(listener)
