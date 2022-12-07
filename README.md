@@ -13,13 +13,13 @@
   
   <h3>Scott Luu</h3>
   <pre>
-  Brainstormed ideas+tasks and coordinated tasks among members
+  Brainstormed ideas/tasks and coordinated tasks among members
   Implemented Expenditure page’s design and features,  including:
     Data extraction from Firebase for:
     City & Country’s Avg. Spending
     Determine a city’s High vs. Low Season
-  A ListView with a custom BaseAdapter to displays % of transactions’ category
-  Utilize Michael’s Country/City Selection dropdown tool to get information of countries and cities for the above methods 
+    A ListView with a custom BaseAdapter to displays % of transactions’ category
+    Utilize Michael’s Country/City Selection dropdown tool to get information of countries and cities for the above methods 
 
   </pre>
   
@@ -27,8 +27,6 @@
   <pre>
   Implemented the home page design
   Implemented the transactions list in home page that displays all the transaction data the user has from the Firebase database
-  Implementation of total expenditure feature of all transactions
-  Made sure that full list of transactions is displayed on home page , thus also included a screen scroller to deliver great usability {this is the same as 2}
   Making sure that all requirements of show and tells, final presentations are met, and what we are presenting corrects depicts our app
   </pre>
   
