@@ -48,6 +48,7 @@
     Transaction list which displays all transactions owned by or shared with the user
     Feature to edit transaction details and save to Firebase
     Feature to fetch transactions with QR codes or by an identifier
+  Display homepage total balance
   </pre>
   
 </details>
