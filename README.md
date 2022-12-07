@@ -55,8 +55,10 @@
 
 [MVVM and Thread Design Diagram](https://docs.google.com/presentation/d/1CjuodK9SNi6eGaUnif9J1mQivT2SN5kppOBAr81Drfg/edit?usp=sharing)
 
-[Final Presentation Video]()
+[Final Presentation Video](https://youtu.be/bNrns7LS2Sk)
 
 [APK here](https://github.com/m-j-z/StashUp/releases/download/v0.01/StashUp.apk)
 
-[Source Code](https://github.com/m-j-z/StashUp)
+[Source Code (Release)](https://github.com/m-j-z/StashUp/releases/tag/v0.01)
+
+[Source Code (GitHub)](https://github.com/m-j-z/StashUp)
