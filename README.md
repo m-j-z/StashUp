@@ -27,7 +27,11 @@
   <pre>
   Implemented the home page design
   Implemented the transactions list in home page that displays all the transaction data the user has from the Firebase database
-  Making sure that all requirements of show and tells, final presentations are met, and what we are presenting corrects depicts our app
+  Making sure that all requirements of show and tells, final presentations are met, and what we are presenting  corrects depicts our app
+  Came up with different ideas related to possible features that could be added & be beneficial for user
+  Maintained efficient communication  and planned weekly meetings
+  Prepared presentation slides and explanation of MVVM diagram
+
   </pre>
   
   <h3>Michael Zhu</h3>
